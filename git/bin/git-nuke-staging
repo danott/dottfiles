@@ -1,0 +1,11 @@
+#!/bin/bash
+#
+# Assumptions:
+# - Clean working tree.
+# - Tags are used exclusively to tag deploys
+
+git checkout master
+git branch -D staging # Delete staging branch locally.
+git push origin :staging # Delete staging branch from GitHub.
+git checkout -b staging `git describe --abbrev=0 --tags` # create staging from the latest deployed tag.
+git push --set-upstream origin staging

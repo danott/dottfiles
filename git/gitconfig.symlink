@@ -1,0 +1,32 @@
+[hub]
+  protocol = https
+[user]
+  name = Dan Ott
+  email = thedanielott@gmail.com
+[credential]
+  helper = osxkeychain
+[color]
+  diff = auto
+  status = auto
+  branch = auto
+  ui = true
+[core]
+  excludesfile = ~/.gitignore
+  editor = vim
+[apply]
+[mergetool]
+  keepBackup = false
+[difftool]
+  prompt = false
+[help]
+  autocorrect = 1
+[push]
+  default = simple
+[difftool "Kaleidoscope"]
+  cmd = ksdiff-wrapper git \"$LOCAL\" \"$REMOTE\"
+[diff]
+  tool = Kaleidoscope
+[branch]
+  autosetupmerge = true
+[alias]
+  lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit

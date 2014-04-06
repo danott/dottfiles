@@ -1,0 +1,3 @@
+#!/bin/bash
+
+ifconfig | grep "en0" --after-context=3 | grep "\sinet\s" | awk '{print $2}'

@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Reset PATH when reloading
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+export DOTTFILES="$HOME/.dottfiles"
+export PROJECTS="$HOME/Code"
+
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+  . $(brew --prefix)/etc/bash_completion
+fi
+
+export PATH="$PATH:$HOME/.dottfiles/bin"
+for directory in $(ls -d $DOTTFILES/**/bin); do
+  export PATH="$PATH:$directory";
+done
+
+for includeable in $(ls $DOTTFILES/**/*.bash); do
+  source $includeable;
+done
+
+alias reload!='. ~/.bash_profile'

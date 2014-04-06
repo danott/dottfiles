@@ -1,0 +1,31 @@
+# .tmux.conf
+set-option -g default-shell /bin/bash
+set -g mode-mouse on
+set -g mouse-select-pane on
+set -g base-index 1
+set -g prefix C-space
+
+# Vim key bindings.
+set-window-option -g mode-keys vi
+bind h select-pane -L
+bind j select-pane -D
+bind k select-pane -U
+bind l select-pane -R
+
+set -sg escape-time 0
+
+# Make Copy and Paste work.
+set-option -g default-command "reattach-to-user-namespace -l bash"
+
+# Solarized colors
+set -g default-terminal "screen-256color"
+source "$DOTTFILES/tmux/sources/solarized/$ITERM_PROFILE.tmux.conf"
+
+# POWERLINE
+# source "/usr/local/lib/python2.7/site-packages/powerline/bindings/tmux/powerline.conf"
+
+# smart pane switching with awareness of vim splits
+bind -n C-h run "(tmux display-message -p '#{pane_current_command}' | grep -iq vim && tmux send-keys C-h) || tmux select-pane -L"
+bind -n C-j run "(tmux display-message -p '#{pane_current_command}' | grep -iq vim && tmux send-keys C-j) || tmux select-pane -D"
+bind -n C-k run "(tmux display-message -p '#{pane_current_command}' | grep -iq vim && tmux send-keys C-k) || tmux select-pane -U"
+bind -n C-l run "(tmux display-message -p '#{pane_current_command}' | grep -iq vim && tmux send-keys C-l) || tmux select-pane -R"

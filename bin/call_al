@@ -1,0 +1,4 @@
+#!/bin/bash
+ 
+# Based on examples at http://developer.rdio.com/docs/read/Desktop
+osascript -e 'tell app "Rdio" to play source "t17790158"'

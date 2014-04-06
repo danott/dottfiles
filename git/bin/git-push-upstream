@@ -1,0 +1,5 @@
+#!/bin/sh
+#
+# Pushes a branch upstream to origin
+
+git push --set-upstream origin $(git rev-parse --abbrev-ref HEAD)

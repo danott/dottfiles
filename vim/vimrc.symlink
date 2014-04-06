@@ -1,0 +1,329 @@
+" Vundle -----------------------------------------------------------------------
+
+set nocompatible               " be iMproved
+filetype off
+set rtp+=~/.vim/bundle/vundle/
+call vundle#rc()
+
+Bundle 'PProvost/vim-markdown-jekyll'
+Bundle 'Shougo/neocomplcache.vim'
+Bundle 'altercation/vim-colors-solarized'
+Bundle 'cakebaker/scss-syntax.vim'
+Bundle 'christoomey/vim-tmux-navigator'
+Bundle 'darthdeus/vim-emblem'
+Bundle 'gmarik/vundle'
+Bundle 'jnwhiteh/vim-golang'
+Bundle 'jtratner/vim-flavored-markdown'
+Bundle 'kchmck/vim-coffee-script'
+Bundle 'nono/vim-handlebars'
+Bundle 'othree/html5.vim'
+Bundle 'pangloss/vim-javascript'
+Bundle 'rking/ag.vim'
+Bundle 'scrooloose/nerdtree'
+Bundle 'slim-template/vim-slim'
+Bundle 'tomtom/tcomment_vim'
+Bundle 'tpope/vim-fugitive'
+Bundle 'tpope/vim-markdown'
+Bundle 'tpope/vim-rails'
+Bundle 'tpope/vim-repeat'
+Bundle 'tpope/vim-surround'
+Bundle 'tpope/vim-liquid'
+Bundle 'vim-ruby/vim-ruby'
+Bundle 'wincent/Command-T'
+
+" Vim settings -----------------------------------------------------------------
+
+syntax on
+filetype plugin indent on
+
+" Protects against some exploits
+set modelines=0
+
+" Make Tabs behave
+set expandtab
+set shiftwidth=2
+set softtabstop=2
+set tabstop=2
+
+set autoindent
+set backspace=indent,eol,start
+set encoding=utf-8
+set hidden
+set laststatus=2
+set nocursorline
+set noesckeys
+set nofoldenable
+set relativenumber
+set ruler
+set scrolloff=3
+set showcmd
+set smartindent
+set showmode
+set ttyfast
+set visualbell
+set wildmenu
+set wildmode=list:longest
+
+
+" Key Mappings -----------------------------------------------------------------
+
+" Take me to your leader, comma
+let mapleader=","
+
+" Double-j as escape in insertmode
+inoremap jj <ESC>
+
+" Save all the things!
+nmap <Leader>s :w<CR>
+imap <Leader>s <ESC>:w<CR>
+
+" No need to shift this one
+nnoremap ; :
+vnoremap ; :
+
+" Better moving around splits
+nnoremap <leader>w <C-w>v<C-w>l
+
+" Better moving around tabs
+nmap { :tabprevious<cr>
+nmap } :tabnext<cr>
+nmap <leader>] :tabnew<cr>
+
+map <Leader>e :NERDTreeToggle<CR>
+map <Leader>f :NERDTreeFind<CR>
+map <Leader>,w :set invwrap<CR>
+
+" Quick editing of vimrc
+map <Leader>,e :e $MYVIMRC<CR>
+map <Leader>,s :so $MYVIMRC<CR>
+
+
+" Searching
+nnoremap / /\v
+vnoremap / /\v
+set ignorecase
+set smartcase
+set gdefault
+set incsearch
+set showmatch
+set hlsearch
+nnoremap <leader><space> :noh<cr>
+nnoremap <tab> %
+vnoremap <tab> %
+set grepprg=ag
+map <C-n> :cnext<cr>
+map <C-p> :cprev<cr>
+
+" Keep a sane line length
+set nowrap
+set textwidth=80
+set formatoptions=qrn1c
+" set colorcolumn=+1,+2,+3,+4,+5,+6,+7,+8,+9,+10,+11,+12,+13,+14,+15,+16,+17,+18,+19,+20,+21,+22,+23,+24,+25,+26,+27,+28,+29,+30,+31,+32,+33,+34,+35,+36,+37,+38,+39,+40,+41,+42,+43,+44,+45,+46,+47,+48,+49,+50,+51,+52,+53,+54,+55,+56,+57,+58,+59,+60,+61,+62,+63,+64,+65,+66,+67,+68,+69,+70,+71,+72,+73,+74,+75,+76,+77,+78,+79,+80,+81,+82,+83,+84,+85,+86,+87,+88,+89,+90,+91,+92,+93,+94,+95,+96,+97,+98,+99,+100,+101,+102,+103,+104,+105,+106,+107,+108,+109,+110,+111,+112,+113,+114,+115,+116,+117,+118,+119,+120,+121,+122,+123,+124,+125,+126,+127,+128,+129,+130,+131,+132,+133,+134,+135,+136,+137,+138,+139,+140,+141,+142,+143,+144,+145,+146,+147,+148,+149,+150,+151,+152,+153,+154,+155,+156,+157,+158,+159,+160,+161,+162,+163,+164,+165,+166,+167,+168,+169,+170,+171,+172,+173,+174,+175,+176,+177,+178,+179,+180,+181,+182,+183,+184,+185,+186,+187,+188,+189,+190,+191,+192,+193,+194,+195,+196,+197,+198,+199,+200,+201,+202,+203,+204,+205,+206,+207,+208,+209,+210,+211,+212,+213,+214,+215,+216,+217,+218,+219,+220,+221,+222,+223,+224,+225,+226,+227,+228,+229,+230,+231,+232,+233,+234,+235,+236,+237,+238,+239,+240,+241,+242,+243,+244,+245,+246,+247,+248,+249,+250,+251,+252,+253,+254,+255,+256
+
+
+" Buffer Settings --------------------------------------------------------------
+
+au FocusLost * :wa
+
+set undofile
+set undodir=~/.tmp
+
+set nobackup
+set backupdir=~/.tmp
+
+set noswapfile
+set directory=~/.tmp " Don't clutter my dirs up with swp and tmp files
+
+set wildignore=tmp,spec/karma/node/node_modules,log
+
+
+" CommandT Setup ---------------------------------------------------------------
+
+map <Leader>t :CommandT<CR>
+map <Leader>,t :CommandTFlush<CR>:CommandT<CR>
+let g:CommandTMaxHeight=50
+let g:CommandTMatchWindowAtTop=1
+
+
+" Solarized Colors ------------------------------------------------------------
+"
+" iTerm Report Terminal Type: xterm-256color
+" Tmux config in tmux.conf: set -g default-terminal "screen-256color"
+
+set t_Co=256
+
+" In iTerm, I've setup an environment variables so vim can match iTerm's
+" settings effortlessly.
+if $ITERM_PROFILE == "solarized_light"
+  set background=light
+elseif $ITERM_PROFILE == "solarized_dark"
+  set background=dark
+else
+  set background=dark " A default value"
+endif
+
+colorscheme solarized
+
+
+" ORGANIZE THIS ---------------------------------------------------------------
+
+" Sudo edit file after it has already been opened.
+cmap w!! w !sudo tee % >/dev/null
+
+" Vim Flavored markdown
+augroup markdown
+  au!
+  au BufNewFile,BufRead *.md,*.markdown setlocal filetype=ghmarkdown
+  au BufRead,BufNewFile *.md,*.markdown setlocal spell
+  setlocal complete+=kspell
+augroup END
+
+
+" Include wrapped lines in j/k navigation
+map j gj
+map k gk
+
+" I like to be able to scroll when reviewing source code
+set mouse=a
+
+" Powerline config
+" set rtp+=/usr/local/lib/python2.7/site-packages/powerline/bindings/vim
+
+" Remove trailing whitespace before save
+autocmd BufWritePre * :%s/\s\+$//e
+
+" Git commit messages
+autocmd Filetype gitcommit setlocal spell textwidth=72
+
+" MacVim
+set guifont=Inconsolata-dz\ for\ Powerline:h12
+
+
+" Neocomplcache ----------------------------------------------------------------
+" Note: This option must set it in .vimrc(_vimrc).  NOT IN .gvimrc(_gvimrc)!
+" Disable AutoComplPop.
+let g:acp_enableAtStartup = 0
+" Use neocomplcache.
+let g:neocomplcache_enable_at_startup = 1
+" Use smartcase.
+let g:neocomplcache_enable_smart_case = 1
+" Set minimum syntax keyword length.
+let g:neocomplcache_min_syntax_length = 3
+let g:neocomplcache_lock_buffer_name_pattern = '\*ku\*'
+
+" Enable heavy features.
+" Use camel case completion.
+"let g:neocomplcache_enable_camel_case_completion = 1
+" Use underbar completion.
+"let g:neocomplcache_enable_underbar_completion = 1
+
+" Define dictionary.
+let g:neocomplcache_dictionary_filetype_lists = {
+    \ 'default' : '',
+    \ 'vimshell' : $HOME.'/.vimshell_hist',
+    \ 'scheme' : $HOME.'/.gosh_completions'
+        \ }
+
+" Define keyword.
+if !exists('g:neocomplcache_keyword_patterns')
+    let g:neocomplcache_keyword_patterns = {}
+endif
+let g:neocomplcache_keyword_patterns['default'] = '\h\w*'
+
+" Plugin key-mappings.
+inoremap <expr><C-g>     neocomplcache#undo_completion()
+inoremap <expr><C-l>     neocomplcache#complete_common_string()
+
+" Recommended key-mappings.
+" <CR>: close popup and save indent.
+inoremap <silent> <CR> <C-r>=<SID>my_cr_function()<CR>
+function! s:my_cr_function()
+  return neocomplcache#smart_close_popup() . "\<CR>"
+  " For no inserting <CR> key.
+  "return pumvisible() ? neocomplcache#close_popup() : "\<CR>"
+endfunction
+" <TAB>: completion.
+inoremap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+" <C-h>, <BS>: close popup and delete backword char.
+inoremap <expr><C-h> neocomplcache#smart_close_popup()."\<C-h>"
+inoremap <expr><BS> neocomplcache#smart_close_popup()."\<C-h>"
+inoremap <expr><C-y>  neocomplcache#close_popup()
+inoremap <expr><C-e>  neocomplcache#cancel_popup()
+" Close popup by <Space>.
+"inoremap <expr><Space> pumvisible() ? neocomplcache#close_popup() : "\<Space>"
+
+" For cursor moving in insert mode(Not recommended)
+"inoremap <expr><Left>  neocomplcache#close_popup() . "\<Left>"
+"inoremap <expr><Right> neocomplcache#close_popup() . "\<Right>"
+"inoremap <expr><Up>    neocomplcache#close_popup() . "\<Up>"
+"inoremap <expr><Down>  neocomplcache#close_popup() . "\<Down>"
+" Or set this.
+"let g:neocomplcache_enable_cursor_hold_i = 1
+" Or set this.
+"let g:neocomplcache_enable_insert_char_pre = 1
+
+" AutoComplPop like behavior.
+"let g:neocomplcache_enable_auto_select = 1
+
+" Shell like behavior(not recommended).
+"set completeopt+=longest
+"let g:neocomplcache_enable_auto_select = 1
+"let g:neocomplcache_disable_auto_complete = 1
+"inoremap <expr><TAB>  pumvisible() ? "\<Down>" : "\<C-x>\<C-u>"
+
+" Enable omni completion.
+autocmd FileType css setlocal omnifunc=csscomplete#CompleteCSS
+autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
+autocmd FileType javascript setlocal omnifunc=javascriptcomplete#CompleteJS
+autocmd FileType python setlocal omnifunc=pythoncomplete#Complete
+autocmd FileType xml setlocal omnifunc=xmlcomplete#CompleteTags
+
+" Enable heavy omni completion.
+if !exists('g:neocomplcache_omni_patterns')
+  let g:neocomplcache_omni_patterns = {}
+endif
+let g:neocomplcache_omni_patterns.php = '[^. \t]->\h\w*\|\h\w*::'
+let g:neocomplcache_omni_patterns.c = '[^.[:digit:] *\t]\%(\.\|->\)'
+let g:neocomplcache_omni_patterns.cpp = '[^.[:digit:] *\t]\%(\.\|->\)\|\h\w*::'
+
+" For perlomni.vim setting.
+" https://github.com/c9s/perlomni.vim
+let g:neocomplcache_omni_patterns.perl = '\h\w*->\h\w*\|\h\w*::'
+let g:neocomplcache_force_overwrite_completefunc = 1
+
+" --- GOLANG ---
+
+" set runtimepath+=$GOROOT/misc/vim
+filetype plugin indent on
+syntax on
+let g:gofmt_command = "goimports"
+autocmd FileType go autocmd BufWritePre <buffer> Fmt
+
+" go ctgas
+let g:tagbar_type_go = {
+   \ 'ctagstype' : 'go',
+   \ 'kinds'     : [
+       \ 'p:package',
+       \ 'i:imports:1',
+       \ 'c:constants',
+       \ 'v:variables',
+       \ 't:types',
+       \ 'n:interfaces',
+       \ 'w:fields',
+       \ 'e:embedded',
+       \ 'm:methods',
+       \ 'r:constructor',
+       \ 'f:functions'
+   \ ],
+   \ 'sro' : '.',
+   \ 'kind2scope' : {
+       \ 't' : 'ctype',
+       \ 'n' : 'ntype'
+   \ },
+   \ 'scope2kind' : {
+       \ 'ctype' : 't',
+       \ 'ntype' : 'n'
+   \ },
+   \ 'ctagsbin'  : 'gotags',
+   \ 'ctagsargs' : '-sort -silent'
+\ }

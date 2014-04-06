@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+
+for source in $(ls $HOME/.dottfiles/**/*.symlink); do
+  destination="$HOME/.`basename \"${source%.*}\"`";
+  ln -nfs $source $destination;
+done
+
