@@ -186,9 +186,6 @@ map k gk
 " I like to be able to scroll when reviewing source code
 set mouse=a
 
-" Powerline config
-" set rtp+=/usr/local/lib/python2.7/site-packages/powerline/bindings/vim
-
 " Remove trailing whitespace before save
 autocmd BufWritePre * :%s/\s\+$//e
 
