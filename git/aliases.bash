@@ -5,3 +5,6 @@ alias gca="git commit -a"
 alias gl="git pull"
 alias gp="git push"
 alias gs="git status"
+
+# Completions for aliases
+__git_complete gco _git_checkout
