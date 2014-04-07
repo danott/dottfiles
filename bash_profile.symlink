@@ -13,8 +13,8 @@ for directory in $(ls -d $DOTTFILES/**/bin); do
 done
 
 # Source all files ending in .bash
-for includeable in $(ls $DOTTFILES/**/*.bash); do
-  source $includeable;
+for file in $(ls $DOTTFILES/**/*.bash); do
+  source "$file";
 done
 
 alias reload!='. ~/.bash_profile'
