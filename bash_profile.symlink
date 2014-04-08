@@ -6,6 +6,11 @@ export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 export DOTTFILES="$HOME/.dottfiles"
 export PROJECTS="$HOME/Code"
 
+# Load completions before anything else, so other files can depend on it.
+if [ -f $(brew --prefix)/etc/bash_completion ]; then
+  . $(brew --prefix)/etc/bash_completion
+fi
+
 # Append all bin directories to $PATH
 export PATH="$PATH:$DOTTFILES/bin"
 for directory in $(ls -d $DOTTFILES/**/bin); do
