@@ -5,6 +5,7 @@ alias gca="git commit -a"
 alias gd="git difftool"
 alias gl="git pull"
 alias gp="git push"
+alias gpu="git push-upstream"
 alias gs="git status"
 
 # Completions for aliases
