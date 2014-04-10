@@ -1,5 +1,6 @@
 #!/bin/bash
 
-for deleted in $(git status | grep deleted | awk '{print $2}'); do
+for deleted in $(git status | grep deleted | awk '{print $2}')
+do
   git rm "$deleted";
 done
