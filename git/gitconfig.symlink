@@ -1,5 +1,5 @@
 [hub]
-  protocol = https
+	protocol = git
 [user]
   name = Dan Ott
   email = thedanielott@gmail.com

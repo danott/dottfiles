@@ -2,4 +2,4 @@
 
 # Node Pacakage Manger Executables (brew install node)
 export PATH="${PATH}:/usr/local/share/npm/bin"
-export NODE_PATH="/usr/local/lib/node"
+export NODE_PATH="/usr/local/lib/node:/usr/local/share/npm/lib/node_modules"
