@@ -22,4 +22,6 @@ for file in $(ls $DOTTFILES/**/*.bash); do
   source "$file";
 done
 
+source "$HOME/.local_profile.bash"
+
 alias reload!='. ~/.bash_profile'
