@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+def ask(question)
+  print "#{question} [yn]: "
+  gets.match(/y/i)
+end
+
+today = Time.now.strftime("%Y-%m-%d")
+filename = "#{today}-today-i-learned.md"
+
+Dir.chdir("/Users/danott/Code/today-i-learned/_posts")
+
+system "vim + #{filename}"
+if ask "Publish now?"
+  system "git add #{filename} && git commit -m #{today} && git push"
+end
+
+
