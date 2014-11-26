@@ -3,26 +3,12 @@
 function create_session() {
   cd "$PROJECTS/resources"
   tmux start-server
+
   tmux new-session -d -s resources -n code
-  tmux split-window -d -h -t resources:code -p 28
+  tmux new-window -d -t resources -n logs
 
-  # ** Necessary to get numbering right **
-  # tmux new-window -d -t resources -n temp
-  # tmux join-pane -d -s resources:temp -t resources:code.1
-  # ** Necessary to get numbering right **
-
-  tmux new-window -d -t resources -n jobs
-  tmux split-window -d -h -t resources:jobs
-  tmux split-window -d -t resources:jobs.0
-
-  tmux send-keys -t resources:code.0 'vim' C-m
-  # tmux send-keys -t resources:code.1 'bundle exec guard start' C-m
-  # tmux send-keys -t resources:code.1 'bundle exec rails console' C-m
-  # tmux send-keys -t resources:code.2 'bundle exec guard start' C-m
-
-  tmux send-keys -t resources:jobs.0 'bundle exec foreman start -f Procfile.pow' C-m
-  tmux send-keys -t resources:jobs.1 'cd $PROJECTS/accounts && git pull && foreman start' C-m
-  tmux send-keys -t resources:jobs.2 'tail -f log/development.log' C-m
+  # tmux send-keys -t resources:code.0 'vim' C-m
+  tmux send-keys -t resources:logs.0 'tail -f log/development.log' C-m
 
   return 0
 }
