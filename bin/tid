@@ -6,9 +6,9 @@ def ask(question)
 end
 
 today = Time.now.strftime("%Y-%m-%d")
-filename = "#{today}-today-i-learned.md"
+filename = "#{today}-today-i-did.md"
 
-Dir.chdir("/Users/danott/Code/today-i-learned/_posts")
+Dir.chdir("/Users/danott/Code/today-i-did/")
 
 system "vim + #{filename}"
 if ask "Publish now?"

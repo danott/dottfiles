@@ -1,5 +1,4 @@
-export GOPATH="$PROJECTS/go"
+export GOPATH="$PROJECTS/go:/usr/local/Cellar/go/1.4/libexec/"
 export PATH="$PATH:$GOPATH/bin"
 export GOROOT=`go env GOROOT`
 export PATH="$PATH:$GOROOT/bin"
-export PATH="$PATH:/usr/local/Cellar/go/1.2.1/libexec/bin"

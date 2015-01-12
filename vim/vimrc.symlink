@@ -8,14 +8,12 @@ call vundle#rc()
 Bundle 'altercation/vim-colors-solarized'
 Bundle 'cakebaker/scss-syntax.vim'
 Bundle 'christoomey/vim-tmux-navigator'
-Bundle 'darthdeus/vim-emblem'
-Bundle 'ervandew/supertab'
 Bundle 'fatih/vim-go'
 Bundle 'gmarik/vundle'
-Bundle 'jtratner/vim-flavored-markdown'
 Bundle 'kchmck/vim-coffee-script'
 Bundle 'kien/ctrlp.vim'
-Bundle 'nono/vim-handlebars'
+Bundle 'msanders/snipmate.vim'
+Bundle 'mxw/vim-jsx'
 Bundle 'othree/html5.vim'
 Bundle 'pangloss/vim-javascript'
 Bundle 'rking/ag.vim'
@@ -24,12 +22,10 @@ Bundle 'slim-template/vim-slim'
 Bundle 'tomtom/tcomment_vim'
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-liquid'
-Bundle 'tpope/vim-markdown'
 Bundle 'tpope/vim-rails'
 Bundle 'tpope/vim-repeat'
 Bundle 'tpope/vim-surround'
 Bundle 'vim-ruby/vim-ruby'
-" Bundle 'wincent/Command-T'
 
 " Vim settings -----------------------------------------------------------------
 
@@ -169,13 +165,17 @@ colorscheme solarized
 " Sudo edit file after it has already been opened.
 cmap w!! w !sudo tee % >/dev/null
 
-" Vim Flavored markdown
-augroup markdown
-  au!
-  au BufNewFile,BufRead *.md,*.markdown setlocal filetype=markdown
-  au BufRead,BufNewFile *.md,*.markdown setlocal spell
-  setlocal complete+=kspell
-augroup END
+
+" Markdown
+autocmd FileType markdown setlocal tw=0
+autocmd FileType markdown setlocal complete+=kspell
+" augroup markdown
+"   au!
+"   " au BufNewFile,BufRead *.md,*.markdown setlocal filetype=markdown
+"   " au BufRead,BufNewFile *.md,*.markdown setlocal spell
+"   " au BufRead,BufNewFile *.md,*.markdown set tw=0
+"   " setlocal complete+=kspell
+" augroup END
 
 " Include wrapped lines in j/k navigation
 " map j gj
