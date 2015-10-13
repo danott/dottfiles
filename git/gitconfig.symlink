@@ -28,6 +28,8 @@
   tool = Kaleidoscope
 [branch]
   autosetupmerge = true
+[commit]
+  template = ~/.gitmessage
 [alias]
   lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit
   co = checkout
@@ -36,3 +38,8 @@
   p = push
   s = status
   pu = push-upstream
+  d = difftool
+[filter "lfs"]
+	clean = git-lfs clean %f
+	smudge = git-lfs smudge %f
+	required = true
