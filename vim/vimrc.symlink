@@ -1,225 +1,148 @@
-" Vundle -----------------------------------------------------------------------
+set nocompatible
 
-set nocompatible              " be iMproved, required
-filetype off                  " required
+call plug#begin('~/.vim/bundle')
 
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
+" Define bundles via Github repos
+Plug 'christoomey/vim-tmux-navigator'
+Plug 'ctrlpvim/ctrlp.vim'
+Plug 'fatih/vim-go'
+Plug 'mxw/vim-jsx'
+Plug 'ngmy/vim-rubocop'
+Plug 'pangloss/vim-javascript'
+Plug 'rizzatti/dash.vim'
+Plug 'scrooloose/nerdtree'
+Plug 'scrooloose/syntastic'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-haml'
+Plug 'tpope/vim-liquid'
+Plug 'tpope/vim-rails'
+Plug 'tpope/vim-rake'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-sensible'
+Plug 'tpope/vim-surround'
+Plug 'vim-ruby/vim-ruby'
 
-Plugin 'altercation/vim-colors-solarized'
-Plugin 'cakebaker/scss-syntax.vim'
-Plugin 'christoomey/vim-tmux-navigator'
-Plugin 'fatih/vim-go'
-Plugin 'gmarik/Vundle.vim'
-Plugin 'kchmck/vim-coffee-script'
-Plugin 'kien/ctrlp.vim'
-Plugin 'ervandew/supertab'
-Plugin 'evidens/vim-twig'
-Plugin 'mxw/vim-jsx'
-Plugin 'ngmy/vim-rubocop'
-Plugin 'othree/html5.vim'
-Plugin 'pangloss/vim-javascript'
-Plugin 'rizzatti/dash.vim'
-Plugin 'rking/ag.vim'
-Plugin 'scrooloose/nerdtree'
-Plugin 'scrooloose/syntastic.git'
-Plugin 'slim-template/vim-slim'
-Plugin 'tomtom/tcomment_vim'
-Plugin 'tpope/vim-fugitive'
-Plugin 'tpope/vim-liquid'
-Plugin 'tpope/vim-rails'
-Plugin 'tpope/vim-repeat'
-Plugin 'tpope/vim-surround'
-Plugin 'vim-ruby/vim-ruby'
-Plugin 'keith/swift.vim'
+call plug#end()
 
-call vundle#end()            " required
-filetype plugin indent on    " required
-
-" " Vim settings -----------------------------------------------------------------
-
-syntax on
-
-" " Protects against some exploits
-set modelines=0
-
-" " Make Tabs behave
-set expandtab
-set shiftwidth=2
-set softtabstop=2
-set tabstop=2
-
-set autoindent
-set backspace=indent,eol,start
-set encoding=utf-8
-set hidden
-set laststatus=2
-set nocursorline
-set noesckeys
-set nofoldenable
-set relativenumber
-set ruler
-set scrolloff=3
-set showcmd
-set smartindent
-set showmode
-set ttyfast
-set visualbell
-set wildmenu
-set wildmode=list:longest
-
-" " Key Mappings -----------------------------------------------------------------
-
-" Take me to your leader, comma
-let mapleader=","
-
-" Double-j as escape in insertmode
-inoremap jj <ESC>
-
-" Save all the things!
-nmap <Leader>w :w<CR>
-imap <Leader>w <ESC>:w<CR>
-
-" No need to shift this one
-nnoremap ; :
-vnoremap ; :
-
-" Better moving around splits
-nnoremap <leader>l <C-w>v<C-w>l
-nnoremap <leader>j <C-w>s<C-w>j
-
-" NerdTree
-map <Leader>e :NERDTreeToggle<CR>
-map <Leader>f :NERDTreeFind<CR>
-map <Leader>,w :set invwrap<CR>
-
-" Quick editing of vimrc
-map <Leader>,e :e $MYVIMRC<CR>
-map <Leader>,s :so $MYVIMRC<CR>
-
-set ignorecase
-set smartcase
-set gdefault
-set incsearch
-set showmatch
-set hlsearch
-nnoremap <leader><space> :noh<cr>
-
-set grepprg=ag
-map <C-n> :cnext<cr>
-map <C-p> :cprev<cr>
-
-" Keep a sane line length
-set nowrap
-set textwidth=80
-set formatoptions=qrn1c
-" set colorcolumn=+1,+2,+3,+4,+5,+6,+7,+8,+9,+10,+11,+12,+13,+14,+15,+16,+17,+18,+19,+20,+21,+22,+23,+24,+25,+26,+27,+28,+29,+30,+31,+32,+33,+34,+35,+36,+37,+38,+39,+40,+41,+42,+43,+44,+45,+46,+47,+48,+49,+50,+51,+52,+53,+54,+55,+56,+57,+58,+59,+60,+61,+62,+63,+64,+65,+66,+67,+68,+69,+70,+71,+72,+73,+74,+75,+76,+77,+78,+79,+80,+81,+82,+83,+84,+85,+86,+87,+88,+89,+90,+91,+92,+93,+94,+95,+96,+97,+98,+99,+100,+101,+102,+103,+104,+105,+106,+107,+108,+109,+110,+111,+112,+113,+114,+115,+116,+117,+118,+119,+120,+121,+122,+123,+124,+125,+126,+127,+128,+129,+130,+131,+132,+133,+134,+135,+136,+137,+138,+139,+140,+141,+142,+143,+144,+145,+146,+147,+148,+149,+150,+151,+152,+153,+154,+155,+156,+157,+158,+159,+160,+161,+162,+163,+164,+165,+166,+167,+168,+169,+170,+171,+172,+173,+174,+175,+176,+177,+178,+179,+180,+181,+182,+183,+184,+185,+186,+187,+188,+189,+190,+191,+192,+193,+194,+195,+196,+197,+198,+199,+200,+201,+202,+203,+204,+205,+206,+207,+208,+209,+210,+211,+212,+213,+214,+215,+216,+217,+218,+219,+220,+221,+222,+223,+224,+225,+226,+227,+228,+229,+230,+231,+232,+233,+234,+235,+236,+237,+238,+239,+240,+241,+242,+243,+244,+245,+246,+247,+248,+249,+250,+251,+252,+253,+254,+255,+256
-
-" " Buffer Settings --------------------------------------------------------------
-
-au FocusLost * :wa
-
-set undofile
-set undodir=~/.tmp
-
+let mapleader = " "
 set nobackup
-set backupdir=~/.tmp
+set nowritebackup
+set noswapfile    
+set incsearch     
+set autowrite     
+set nowrap
 
-set noswapfile
-set directory=~/.tmp " Don't clutter my dirs up with swp and tmp files
+" Softtabs, 2 spaces
+set tabstop=2
+set shiftwidth=2
+set shiftround
+set expandtab
 
-set wildignore=tmp,node_modules,log
+" Numbers
+set number
+set numberwidth=5
+set relativenumber
 
+" Open new split panes to right and bottom, which feels more natural
+set splitbelow
+set splitright
 
-" CommandT Setup ---------------------------------------------------------------
+augroup vimrcEx
+  autocmd!
 
-map <Leader>t :CtrlP<CR>
-map <Leader>g :CtrlPTag<CR>
-map <Leader>,t :CtrlPClearCache<CR>:CtrlP<CR>
-map <Leader>,g :CtrlPClearCache<CR>:CtrlPTag<CR>
-let g:ctrlp_match_window_bottom = 0
-let g:ctrlp_match_window_reversed = 0
-let g:ctrlp_map = ''
+  " When editing a file, always jump to the last known cursor position.
+  " Don't do it for commit messages, when the position is invalid, or when
+  " inside an event handler (happens when dropping a file on gvim).
+  autocmd BufReadPost *
+    \ if &ft != 'gitcommit' && line("'\"") > 0 && line("'\"") <= line("$") |
+    \   exe "normal g`\"" |
+    \ endif
 
+  " Set syntax highlighting for specific file types
+  autocmd BufRead,BufNewFile Appraisals set filetype=ruby
+  autocmd BufRead,BufNewFile *.md set filetype=markdown
 
-" Solarized Colors ------------------------------------------------------------
-" iTerm Report Terminal Type: xterm-256color
-" Tmux config in tmux.conf: set -g default-terminal "screen-256color"
+  " Enable spellchecking for Markdown
+  autocmd FileType markdown setlocal spell
 
-set t_Co=256
+  " Automatically wrap at 80 characters for Markdown
+  autocmd BufRead,BufNewFile *.md setlocal textwidth=80
 
-" In iTerm, I've setup an environment variables so vim can match iTerm's
-" settings effortlessly.
-if $ITERM_PROFILE == "solarized_light"
-  set background=light
-elseif $ITERM_PROFILE == "solarized_dark"
-  set background=dark
-else
-  set background=dark " A default value"
+  " Automatically wrap at 72 characters and spell check git commit messages
+  autocmd FileType gitcommit setlocal textwidth=72
+  autocmd FileType gitcommit setlocal spell
+
+  " Allow stylesheets to autocomplete hyphenated words
+  autocmd FileType css,scss,sass setlocal iskeyword+=-
+augroup END
+
+" Use The Silver Searcher https://github.com/ggreer/the_silver_searcher
+if executable('ag')
+  " Use Ag over Grep
+  set grepprg=ag\ --nogroup\ --nocolor
+
+  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
+  let g:ctrlp_user_command = 'ag %s -l --nocolor --ignore-dir ".git" --hidden -g ""'
+
+  " ag is fast enough that CtrlP doesn't need to cache
+  " let g:ctrlp_use_caching = 0
 endif
 
-colorscheme solarized
+" Tab completion
+" will insert tab at beginning of line,
+" will use completion if not at beginning
+set wildmode=list:longest,list:full
+function! InsertTabWrapper()
+    let col = col('.') - 1
+    if !col || getline('.')[col - 1] !~ '\k'
+        return "\<tab>"
+    else
+        return "\<c-p>"
+    endif
+endfunction
+inoremap <Tab> <c-r>=InsertTabWrapper()<cr>
+inoremap <S-Tab> <c-n>
 
+" " Exclude Javascript files in :Rtags via rails.vim due to warnings when parsing
+let g:Tlist_Ctags_Cmd="ctags --exclude='*.js'"
 
-" ORGANIZE THIS ---------------------------------------------------------------
+" " Index ctags from any project, including those outside Rails
+map <Leader>ct :!ctags -R .<CR>
 
-" Sudo edit file after it has already been opened.
-cmap w!! w !sudo tee % >/dev/null
+" Treat <li> and <p> tags like the block tags they are
+let g:html_indent_tags = 'li\|p'
 
+" Quicker window movement
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-h> <C-w>h
+nnoremap <C-l> <C-w>l
 
-" Markdown
-autocmd FileType markdown setlocal tw=0
-autocmd FileType markdown setlocal complete+=kspell
-" augroup markdown
-"   au!
-"   " au BufNewFile,BufRead *.md,*.markdown setlocal filetype=markdown
-"   " au BufRead,BufNewFile *.md,*.markdown setlocal spell
-"   " au BufRead,BufNewFile *.md,*.markdown set tw=0
-"   " setlocal complete+=kspell
-" augroup END
+" Quicker splits
+nnoremap <Leader>l <C-w>v
+nnoremap <Leader>j <C-w>s
+nnoremap <Leader><C-p> :CtrlPTag<CR>
 
-" Include wrapped lines in j/k navigation
-" map j gj
-" map k gk
+" NERDTree
+nnoremap <Leader>e :NERDTreeToggle<CR>
+nnoremap <Leader>f :NERDTreeFind<CR>
 
-" I like to be able to scroll when reviewing source code
-set mouse=a
-
-" Remove trailing whitespace before save
-autocmd BufWritePre * :%s/\s\+$//e
-
-" Git commit messages
-autocmd Filetype gitcommit setlocal spell textwidth=72
-
-" vim-go
-set wildignore+=Godeps
-let g:go_fmt_command = "goimports"
-
-" RAILS
-map <Leader>,v :Rview<CR>
-map <Leader>,c :Rcontroller<CR>
-map <Leader>,m :Rmodel<CR>
-map <Leader>ul :RVunittest<CR>
-
-
-let g:jsx_ext_required = 0
-
-" Syntastic
-
-" set statusline+=%#warningmsg#
-" set statusline+=%{SyntasticStatuslineFlag()}
-" set statusline+=%*
+" configure syntastic syntax checking to check on open as well as save
+set statusline+=%#warningmsg#
+set statusline+=%{SyntasticStatuslineFlag()}
+set statusline+=%*
 
 let g:syntastic_always_populate_loc_list = 1
 let g:syntastic_auto_loc_list = 1
-let g:syntastic_check_on_open = 0
+let g:syntastic_check_on_open = 1
 let g:syntastic_check_on_wq = 0
+let g:syntastic_html_tidy_ignore_errors=[" proprietary attribute \"ng-"]
+let g:syntastic_eruby_ruby_quiet_messages =
+    \ {"regex": "possibly useless use of a variable in void context"}
 
-let g:syntastic_ruby_checkers = ['rubocop']
-map <Leader>,s :SyntasticToggleMode<CR>
-autocmd VimEnter * SyntasticToggleMode " disable syntastic by default
+" Autocomplete with dictionary words when spell check is on
+set complete+=kspell
 
-" CTRP P
-
-let g:ctrlp_working_path_mode = 0
-
+" Always use vertical diffs
+set diffopt+=vertical
