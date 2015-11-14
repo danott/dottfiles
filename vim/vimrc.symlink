@@ -3,12 +3,10 @@ set nocompatible
 call plug#begin('~/.vim/bundle')
 
 " Define bundles via Github repos
-Plug 'christoomey/vim-tmux-navigator'
-Plug 'ctrlpvim/ctrlp.vim'
+" Plug 'christoomey/vim-tmux-navigator'
 Plug 'fatih/vim-go'
 Plug 'mxw/vim-jsx'
 Plug 'pangloss/vim-javascript'
-Plug 'rizzatti/dash.vim'
 Plug 'scrooloose/nerdtree'
 Plug 'scrooloose/syntastic'
 Plug 'tpope/vim-commentary'
@@ -28,10 +26,11 @@ call plug#end()
 let mapleader = " "
 set nobackup
 set nowritebackup
-set noswapfile    
-set incsearch     
-set autowrite     
+set noswapfile
+set incsearch
+set autowrite
 set nowrap
+set lazyredraw
 
 " Softtabs, 2 spaces
 set tabstop=2
@@ -40,8 +39,6 @@ set shiftround
 set expandtab
 
 " Numbers
-set number
-set numberwidth=5
 set relativenumber
 
 " Open new split panes to right and bottom, which feels more natural
@@ -58,10 +55,13 @@ set diffopt+=vertical
 let g:Tlist_Ctags_Cmd="ctags --exclude='*.js'"
 
 " Treat <li> and <p> tags like the block tags they are
-let g:html_indent_tags = 'li\|p'
+" let g:html_indent_tags = 'li\|p'
 
 augroup vimrcEx
   autocmd!
+
+  " Remove trailing whitespace before save
+  autocmd BufWritePre * :%s/\s\+$//e
 
   " When editing a file, always jump to the last known cursor position.
   " Don't do it for commit messages, when the position is invalid, or when
@@ -91,11 +91,7 @@ augroup END
 
 " Use The Silver Searcher https://github.com/ggreer/the_silver_searcher
 if executable('ag')
-  " Use Ag over Grep
   set grepprg=ag\ --nogroup\ --nocolor
-
-  " Use ag in CtrlP for listing files. Lightning fast and respects .gitignore
-  let g:ctrlp_user_command = 'ag %s -l --nocolor --ignore-dir ".git" --hidden -g ""'
 endif
 
 " Tab completion
@@ -125,7 +121,6 @@ nnoremap <C-l> <C-w>l
 " Quicker splits
 nnoremap <Leader>l <C-w>v
 nnoremap <Leader>j <C-w>s
-nnoremap <Leader><C-p> :CtrlPTag<CR>
 
 " NERDTree
 nnoremap <Leader>e :NERDTreeToggle<CR>
@@ -140,3 +135,34 @@ let g:syntastic_mode_map = { "mode": "passive" }
 
 nnoremap <Leader>sc :w<CR>:SyntasticCheck<CR>
 nnoremap <Leader>sr :SyntasticReset<CR>
+
+nnoremap <C-n> :cnext<CR>
+nnoremap <C-p> :cprev<CR>
+
+" Don't clutter my dirs up with swp and tmp files
+set undofile
+set undodir=~/.tmp
+set nobackup
+set backupdir=~/.tmp
+set noswapfile
+set directory=~/.tmp
+set mouse=a
+
+" Run a given vim command on the results of fuzzy selecting from a given shell
+" command. See usage below.
+function! SelectaCommand(choice_command, selecta_args, vim_command)
+  try
+    let selection = system(a:choice_command . " | selecta " . a:selecta_args)
+  catch /Vim:Interrupt/
+    " Swallow the ^C so that the redraw below happens; otherwise there will be
+    " leftovers from selecta on the screen
+    redraw!
+    return
+  endtry
+  redraw!
+  exec a:vim_command . " " . selection
+endfunction
+
+" Find all files in all non-dot directories starting in the working directory.
+" Fuzzy select one of those. Open the selected file with :e.
+nnoremap <Leader>t :call SelectaCommand("find * -type f", "", ":e")<cr>
