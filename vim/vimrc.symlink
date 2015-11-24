@@ -4,11 +4,7 @@ call plug#begin('~/.vim/bundle')
 
 " Define bundles via Github repos
 " Plug 'christoomey/vim-tmux-navigator'
-Plug 'fatih/vim-go'
-Plug 'mxw/vim-jsx'
-Plug 'pangloss/vim-javascript'
-Plug 'scrooloose/nerdtree'
-Plug 'scrooloose/syntastic'
+Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-commentary'
 Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-fugitive'
@@ -17,8 +13,13 @@ Plug 'tpope/vim-liquid'
 Plug 'tpope/vim-rails'
 Plug 'tpope/vim-rake'
 Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-sensible'
 Plug 'tpope/vim-surround'
+Plug 'kien/ctrlp.vim'
+Plug 'fatih/vim-go'
+Plug 'mxw/vim-jsx'
+Plug 'pangloss/vim-javascript'
+Plug 'scrooloose/nerdtree'
+Plug 'scrooloose/syntastic'
 Plug 'vim-ruby/vim-ruby'
 
 call plug#end()
@@ -137,7 +138,6 @@ nnoremap <Leader>sc :w<CR>:SyntasticCheck<CR>
 nnoremap <Leader>sr :SyntasticReset<CR>
 
 nnoremap <C-n> :cnext<CR>
-nnoremap <C-p> :cprev<CR>
 
 " Don't clutter my dirs up with swp and tmp files
 set undofile
@@ -148,21 +148,6 @@ set noswapfile
 set directory=~/.tmp
 set mouse=a
 
-" Run a given vim command on the results of fuzzy selecting from a given shell
-" command. See usage below.
-function! SelectaCommand(choice_command, selecta_args, vim_command)
-  try
-    let selection = system(a:choice_command . " | selecta " . a:selecta_args)
-  catch /Vim:Interrupt/
-    " Swallow the ^C so that the redraw below happens; otherwise there will be
-    " leftovers from selecta on the screen
-    redraw!
-    return
-  endtry
-  redraw!
-  exec a:vim_command . " " . selection
-endfunction
-
-" Find all files in all non-dot directories starting in the working directory.
-" Fuzzy select one of those. Open the selected file with :e.
-nnoremap <Leader>t :call SelectaCommand("find * -type f", "", ":e")<cr>
+if has('nvim')
+  nmap <BS> <C-W>h
+endif
