@@ -1,3 +1,4 @@
+scriptencoding utf-8
 set nocompatible
 
 call plug#begin('~/.vim/bundle')
@@ -20,6 +21,7 @@ Plug 'mxw/vim-jsx'
 Plug 'pangloss/vim-javascript'
 Plug 'scrooloose/nerdtree'
 Plug 'vim-ruby/vim-ruby'
+Plug 'w0rp/ale'
 
 call plug#end()
 
@@ -165,3 +167,12 @@ syntax on
 
 let g:jsx_ext_required = 0
 
+" Ale
+set updatetime=1000
+autocmd BufReadPost,BufWritePost * call ale#Lint()
+autocmd CursorHold * call ale#Lint()
+autocmd CursorHoldI * call ale#Lint()
+autocmd InsertEnter * call ale#Lint()
+autocmd InsertLeave * call ale#Lint()
+
+" NOTE: Had to put bundle exec in /Users/danott/.vim/bundle/ale/ale_linters/ruby
