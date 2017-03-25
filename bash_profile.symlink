@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Reset PATH when reloading
-export PATH="/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:$HOME/bin"
 
 export DOTTFILES="$HOME/.dottfiles"
 export PROJECTS="$HOME/Code"
@@ -25,3 +25,5 @@ done
 source "$HOME/.local_profile.bash"
 
 alias reload!='. ~/.bash_profile'
+
+export PATH="$HOME/.yarn/bin:$PATH"

@@ -19,7 +19,6 @@ Plug 'fatih/vim-go'
 Plug 'mxw/vim-jsx'
 Plug 'pangloss/vim-javascript'
 Plug 'scrooloose/nerdtree'
-Plug 'scrooloose/syntastic'
 Plug 'vim-ruby/vim-ruby'
 
 call plug#end()
@@ -56,7 +55,7 @@ set diffopt+=vertical
 let g:Tlist_Ctags_Cmd="ctags --exclude='*.js'"
 
 " Treat <li> and <p> tags like the block tags they are
-" let g:html_indent_tags = 'li\|p'
+let g:html_indent_tags = 'li\|p'
 
 augroup vimrcEx
   autocmd!
@@ -80,7 +79,7 @@ augroup vimrcEx
   autocmd FileType markdown setlocal spell
 
   " Automatically wrap at 80 characters for Markdown
-  autocmd BufRead,BufNewFile *.md setlocal textwidth=80
+  " autocmd BufRead,BufNewFile *.md setlocal textwidth=80
 
   " Automatically wrap at 72 characters and spell check git commit messages
   autocmd FileType gitcommit setlocal textwidth=72
@@ -117,7 +116,7 @@ endfunction
 inoremap <Tab> <c-r>=InsertTabWrapper()<cr>
 inoremap <S-Tab> <c-n>
 
-" " Index ctags from any project, including those outside Rails
+" Index ctags from any project, including those outside Rails
 nnoremap <Leader>ct :!ctags -R .<CR>
 
 " Quicker window movement
@@ -134,17 +133,13 @@ nnoremap <Leader>j <C-w>s
 nnoremap <Leader>e :NERDTreeToggle<CR>
 nnoremap <Leader>f :NERDTreeFind<CR>
 
-let g:syntastic_enable_signs=1
-let g:syntastic_auto_jump=1
-let g:syntastic_auto_loc_list=1
-let g:syntastic_ruby_checkers=['rubocop', 'mri']
-let g:syntastic_javascript_checkers=['eslint']
-let g:syntastic_mode_map = { "mode": "passive" }
-
-nnoremap <Leader>sc :w<CR>:SyntasticCheck<CR>
-nnoremap <Leader>sr :SyntasticReset<CR>
+nnoremap <Leader>] :tabnext<CR>
+nnoremap <Leader>[ :tabprev<CR>
+nnoremap <Leader>\ :tabnew<CR>
 
 nnoremap <C-n> :cnext<CR>
+nnoremap <C-p> :cprev<CR>
+let g:ctrlp_map = '<Leader>p'
 
 " Don't clutter my dirs up with swp and tmp files
 set undofile
@@ -155,6 +150,18 @@ set noswapfile
 set directory=~/.tmp
 set mouse=a
 
-if has('nvim')
-  nmap <BS> <C-W>h
-endif
+" Turn off all syntax highlighting except comments and errors which are actually useful.
+set t_Co=256
+syntax on
+" highlight Comment    ctermfg=Blue
+" highlight Error      ctermfg=none
+" highlight Constant   ctermfg=none
+" highlight Identifier ctermfg=none
+" highlight Statement  ctermfg=none
+" highlight PreProc    ctermfg=none
+" highlight Type       ctermfg=none
+" highlight Special    ctermfg=none
+" highlight Underlined ctermfg=none
+
+let g:jsx_ext_required = 0
+
