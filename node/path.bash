@@ -1,5 +1,6 @@
 #!/bin/bash
 
 # Node Pacakage Manger Executables (brew install node)
-export PATH="${PATH}:./node_modules/.bin:/usr/local/share/npm/bin"
-# export NODE_PATH="/usr/local/lib/node:/usr/local/share/npm/lib/node_modules"
+export PATH="/usr/local/opt/node@8/bin:$PATH"
+# export LDFLAGS="-L/usr/local/opt/node@8/lib"
+# export CPPFLAGS="-I/usr/local/opt/node@8/include"
