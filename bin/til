@@ -8,7 +8,15 @@ end
 today = Time.now.strftime("%Y-%m-%d")
 filename = "#{today}-today-i-learned.md"
 
-Dir.chdir("/Users/danott/Code/today-i-learned/_posts")
+Dir.chdir("/Users/danott/Code/www.danott.co/content/today-i-learned")
+
+unless File.exists?(filename)
+  File.open(filename, "w") do |f|
+    f.puts "---"
+    f.puts "date: #{today}"
+    f.puts "---\n\n"
+  end
+end
 
 system "vim + #{filename}"
 if ask "Publish now?"

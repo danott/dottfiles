@@ -1,9 +1,34 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 
-for source in $(ls $HOME/.dottfiles/**/*.symlink); do
-  destination="$HOME/.`basename \"${source%.*}\"`";
-  ln -nfs $source $destination;
+cd "$HOME"
+
+for link in .ackrc .gemrc .gitconfig .gitignore .gitmessage .irbrc .zshrc; do
+  if [ -L "$HOME/$link" ]; then
+    echo "Link '$link' already exists"
+  else
+    ln -s "$HOME/.dottfiles/$link" .
+  fi
+done
+
+# Install things
+if command -v brew; then
+  echo "Homebrew installed; updating:"
+  brew update
+else
+  /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+fi
+
+# Brew installations
+brew tap heroku/brew
+brew tap universal-ctags/universal-ctags
+for pkg in autojump git hub mysql node@10 rbenv ruby-build zsh-completions; do
+  if brew list -1 | grep -q "^${pkg}\$"; then
+    echo "Package '$pkg' is installed; updating:"
+    brew upgrade "$pkg" && brew cleanup "$pkg" || true
+  else
+    brew install "$pkg"
+  fi
 done
 

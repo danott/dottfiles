@@ -1,0 +1,2 @@
+ls **/log/*.log.*.gz | xargs rm
+ls **/log/*.log | xargs rm
