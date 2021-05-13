@@ -1,38 +1,39 @@
 [hub]
 	protocol = git
 [user]
-  name = Dan Ott
-  email = thedanielott@gmail.com
+	name = Dan Ott
+	email = danott@users.noreply.github.com
 [credential]
-  helper = osxkeychain
+	helper = osxkeychain
 [color]
-  diff = auto
-  status = auto
-  branch = auto
-  ui = true
+	diff = auto
+	status = auto
+	branch = auto
+	ui = true
 [core]
-  excludesfile = ~/.gitignore
-  editor = vim
+	commentChar = ";"
+	excludesfile = ~/.gitignore
+	editor = vim
 [apply]
 [mergetool]
-  keepBackup = false
+	keepBackup = false
 [help]
-  autocorrect = 1
+	autocorrect = 1
 [push]
-  default = simple
+	default = simple
 [branch]
-  autosetupmerge = true
+	autosetupmerge = true
 [commit]
-  template = ~/.gitmessage
+	template = ~/.gitmessage
 [alias]
-  lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit
-  co = checkout
-  ca = commit -a
-  l = pull
-  p = push
-  s = status
-  pu = push-upstream
-  d = difftool
+	lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%C(bold blue)<%an>%Creset' --abbrev-commit
+	co = checkout
+	ca = commit -a
+	l = pull
+	p = push
+	s = status
+	pu = push-upstream
+	d = difftool
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
@@ -44,3 +45,5 @@
 	prompt = false
 [diff]
 	tool = Kaleidoscope
+[pull]
+	ff = only
