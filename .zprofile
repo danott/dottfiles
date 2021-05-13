@@ -1,5 +1,7 @@
 # Add dottfiles scripts to the path
 PATH="$PATH:$HOME/Code/dottfiles/bin"
+EDITOR=vim
+
 
 # Homebrew
 eval "$(/opt/homebrew/bin/brew shellenv)"
