@@ -4,10 +4,11 @@ set -e
 
 cd "$HOME"
 
-for link in .gitconfig .gitignore .irbrc .vimrc .zshrc; do
+for link in .gitconfig .gitignore .irbrc .vimrc .zprofile .zshrc; do
   if [ -L "$HOME/$link" ]; then
     echo "Link '$link' already exists"
   else
+    echo "Linking '$link'"
     ln -s "$HOME/Code/dottfiles/$link" .
   fi
 done
