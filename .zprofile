@@ -11,6 +11,6 @@ test -d ~/.linuxbrew && eval $(~/.linuxbrew/bin/brew shellenv)
 eval "$(rbenv init -)"
 
 # Configuration that is unique to the local machine
-if [ -f "$HOME/.zprofile.local" ]; then
-  source "$HOME/.zprofile.local"
+if [ -f "$HOME/.zprofile.local.zsh" ]; then
+  source "$HOME/.zprofile.local.zsh"
 fi

@@ -81,8 +81,8 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 plugins=(autojump brew bundler gh git rbenv)
 
 # Configuration that is unique to the local machine
-if [ -f "$HOME/.zshrc.local" ]; then
-  source "$HOME/.zshrc.local"
+if [ -f "$HOME/.zshrc.local.zsh" ]; then
+  source "$HOME/.zshrc.local.zsh"
 fi
 
 source $ZSH/oh-my-zsh.sh
