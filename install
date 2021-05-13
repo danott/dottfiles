@@ -4,7 +4,7 @@ set -e
 
 cd "$HOME"
 
-for link in .gitconfig .gitignore .irbrc .vimrc; do
+for link in .gitconfig .gitignore .irbrc .vimrc .zshrc; do
   if [ -L "$HOME/$link" ]; then
     echo "Link '$link' already exists"
   else
