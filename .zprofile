@@ -3,8 +3,9 @@ PATH="$PATH:$HOME/Code/dottfiles/bin"
 EDITOR=vim
 
 
-# Homebrew
-eval "$(/opt/homebrew/bin/brew shellenv)"
+# Homebrew across platforms
+test -d /opt/homebrew && eval "$(/opt/homebrew/bin/brew shellenv)"
+test -d ~/.linuxbrew && eval $(~/.linuxbrew/bin/brew shellenv)
 
 # Ruby
 eval "$(rbenv init -)"
