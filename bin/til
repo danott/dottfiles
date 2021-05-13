@@ -6,9 +6,9 @@ def ask(question)
 end
 
 today = Time.now.strftime("%Y-%m-%d")
-filename = "#{today}-today-i-learned.md"
+filename = "#{today}.md"
 
-Dir.chdir("/Users/danott/Code/www.danott.co/content/today-i-learned")
+Dir.chdir("/Users/danott/Code/www.danott.co/site/today-i-learned")
 
 unless File.exists?(filename)
   File.open(filename, "w") do |f|
