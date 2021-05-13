@@ -1,7 +1,5 @@
 #!/bin/zsh
 
-echo "Sourcing .zshrc"
-
 # Reset PATH when reloading
 export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 export DOTTFILES="$HOME/.dottfiles"
@@ -13,9 +11,12 @@ export EDITOR=vim
 export PATH="$HOME/bin:$DOTTFILES/bin:$PATH"
 
 # Setup rbenv
-if command -v rbenv &>/dev/null; then
-  eval "$(rbenv init -)"
-fi
+# if command -v rbenv &>/dev/null; then
+eval "$(rbenv init -)"
+# fi
+#
+# Setup nodenv
+eval "$(nodenv init -)"
 
 # Setup autojump
 [ -f /usr/local/etc/profile.d/autojump.sh ] && . /usr/local/etc/profile.d/autojump.sh
@@ -24,19 +25,6 @@ fi
 autoload -Uz compinit && compinit
 fpath=(/usr/local/share/zsh-completions $fpath)
 
-
-# Planning Center Stuff
-export RBENV_ROOT=$HOME/.rbenv
-export MYSQL_PORT_3306_TCP_ADDR=127.0.0.1
-export MYSQL_SLAVE_PORT_3306_TCP_ADDR=127.0.0.1
-export MYSQL_SLAVE_PORT_3306_TCP_PORT=3307
-export PATH=/Users/danott/pco-box/bin:/usr/local/bin:$PATH
-
-export PATH="$PATH:$HOME/Code/pco/bin:$HOME/pco-box/bin"
-eval "$(pco init -)"
-
-ssh-add -D > /dev/null 2>&1
-ssh-add $HOME/.ssh/pco_servers $HOME/.ssh/id_rsa > /dev/null 2>&1
 
 # ALIASES
 
@@ -61,5 +49,7 @@ precmd () { __git_ps1 "%n" ":%~$ " "|%s" }
 # OSX DEFAULTS
 
 # Limited Dark Mode
-defaults write -g NSRequiresAquaSystemAppearance -bool Yes # Limit to toolbar and dock
+# defaults write -g NSRequiresAquaSystemAppearance -bool Yes # Limit to toolbar and dock
 # defaults delete -g NSRequiresAquaSystemAppearance # Return to system default
+export PATH=/Users/danott/pco-box/bin:/usr/local/bin:/usr/local/sbin:$PATH
+eval "$(rbenv init -)"
