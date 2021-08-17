@@ -45,3 +45,5 @@
 	tool = Kaleidoscope
 [pull]
 	ff = only
+[pager]
+	branch = false

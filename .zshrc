@@ -115,3 +115,7 @@ source $ZSH/oh-my-zsh.sh
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+export RBENV_ROOT=$HOME/.rbenv
+export MYSQL_PORT_3306_TCP_ADDR=127.0.0.1
+export MYSQL_READER_PORT_3306_TCP_ADDR=127.0.0.1
+export MYSQL_READER_PORT_3306_TCP_PORT=3307
