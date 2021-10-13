@@ -130,6 +130,7 @@ if [[ -f "$HOME/Code/pco/bin/pco" ]]; then
 fi
 
 if [[ -f "$HOME/pco-box/bin" ]]; then
+source $HOME/pco-box/env.sh
 PATH="${PATH}:$HOME/pco-box/bin"
 export MYSQL_PORT_3306_TCP_ADDR=127.0.0.1
 export MYSQL_READER_PORT_3306_TCP_ADDR=127.0.0.1
