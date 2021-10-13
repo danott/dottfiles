@@ -85,7 +85,10 @@ if [ -f "$HOME/.zshrc.local.zsh" ]; then
   source "$HOME/.zshrc.local.zsh"
 fi
 
-source $ZSH/oh-my-zsh.sh
+if [ -f "$ZSH/oh-my-zsh.sh" ]; then
+  chmod u+x $ZSH/oh-my-zsh.sh
+  source $ZSH/oh-my-zsh.sh
+fi
 
 # User configuration
 
