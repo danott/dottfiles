@@ -3,6 +3,9 @@
 # Strongly inspired by my partner-in-code @bweave 
 # https://github.com/bweave/dotfiles/blob/master/cloudbox_setup
 
+ZSH=$HOME/Code/oh-my-zsh
+ZSH_CUSTOM=$ZSH/custom
+
 sudo apt update
 sudo apt dist-upgrade -y
 
@@ -20,20 +23,20 @@ if [ ! "$SHELL" = "zsh" ]; then
 fi
 
 # Install oh-my-zsh
-if [ ! -d $HOME/.oh-my-zsh ]; then
-  sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
+if [ ! -d $HOME/Code/oh-my-zsh ]; then
+  ZSH=$HOME/Code/oh-my-zsh sh -c "$(wget https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O -)"
   if [ -f $HOME/.zshrc.pre-oh-my-zsh ]; then
     rm .zshrc
     mv .zshrc.pre-oh-my-zsh .zshrc
   fi
 fi
 
-if [ ! -d ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions ]; then
-  git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+if [ ! -d $ZSH_CUSTOM/plugins/zsh-autosuggestions ]; then
+  git clone https://github.com/zsh-users/zsh-autosuggestions $ZSH_CUSTOM/plugins/zsh-autosuggestions
 fi
 
 # Install powerlevel10k theme
-pushd $HOME/.oh-my-zsh/custom &> /dev/null
+pushd $ZSH_CUSTOM &> /dev/null
   pushd ./themes &> /dev/null
     if [ ! -d ./powerlevel10k ]; then
       git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ./powerlevel10k
