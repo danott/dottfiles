@@ -78,7 +78,7 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(autojump brew bundler gh git rbenv)
+plugins=(autojump brew bundler gh git rbenv zsh-autosuggestions)
 
 # Configuration that is unique to the local machine
 if [ -f "$HOME/.zshrc.local.zsh" ]; then
@@ -115,7 +115,20 @@ source $ZSH/oh-my-zsh.sh
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
 export RBENV_ROOT=$HOME/.rbenv
+
+#################
+# Planning Center
+#################
+
+if [[ -f "$HOME/Code/pco/bin/pco" ]]; then
+  eval "$($HOME/Code/pco/bin/pco init -)"
+fi
+
+if [[ -f "$HOME/pco-box/bin" ]]; then
+PATH="${PATH}:$HOME/pco-box/bin"
 export MYSQL_PORT_3306_TCP_ADDR=127.0.0.1
 export MYSQL_READER_PORT_3306_TCP_ADDR=127.0.0.1
 export MYSQL_READER_PORT_3306_TCP_PORT=3307
+fi
