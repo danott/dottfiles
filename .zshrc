@@ -129,7 +129,7 @@ if [[ -f "$HOME/Code/pco/bin/pco" ]]; then
   eval "$($HOME/Code/pco/bin/pco init -)"
 fi
 
-if [[ -f "$HOME/pco-box/bin" ]]; then
+if [[ -d "$HOME/pco-box" ]]; then
 source $HOME/pco-box/env.sh
 PATH="${PATH}:$HOME/pco-box/bin"
 export MYSQL_PORT_3306_TCP_ADDR=127.0.0.1
