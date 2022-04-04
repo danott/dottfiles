@@ -47,3 +47,5 @@
 	ff = only
 [pager]
 	branch = false
+[init]
+	defaultBranch = main
