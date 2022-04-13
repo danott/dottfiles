@@ -4,7 +4,16 @@ set -e
 
 cd "$HOME"
 
-for link in .gitconfig .gitignore .irbrc .p10k.zsh .vimrc .zprofile .zshrc; do
+# install zsh
+if ! command -v zsh; then
+  sudo apt install -y zsh
+fi
+
+# change login shell
+sudo chsh $(whoami) -s $(which zsh)
+
+# Setup my actual dottfiles
+for link in .gitconfig .gitignore .irbrc .vimrc .zprofile .zshrc; do
   if [ -L "$HOME/$link" ]; then
     echo "Link '$link' already exists"
   else
