@@ -8,9 +8,9 @@ end
 today = Time.now.strftime("%Y-%m-%d")
 filename = "#{today}.md"
 
-Dir.chdir("/Users/danott/Code/www.danott.co/site/today-i-learned")
+Dir.chdir("/Users/danott/Documents/Sites/danott.website/today-i-learned")
 
-unless File.exists?(filename)
+unless File.exist?(filename)
   File.open(filename, "w") do |f|
     f.puts "---"
     f.puts "date: #{today}"
@@ -20,5 +20,6 @@ end
 
 system "vim + #{filename}"
 if ask "Publish now?"
-  system "git add #{filename} && git commit -m #{today} && git push"
+  Dir.chdir("/Users/danott/Code/chili_barrel")
+  system "bin/rails pages:deploy"
 end
