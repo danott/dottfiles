@@ -3,6 +3,7 @@
 
 # CLI Tools
 brew "git"
+brew "lazygit"
 brew "neovim"
 brew "tmux"
 brew "starship"
