@@ -13,7 +13,7 @@
 [core]
 	commentChar = ";"
 	excludesfile = ~/.gitignore
-	editor = vim
+	editor = nvim
 [apply]
 [mergetool]
 	keepBackup = false

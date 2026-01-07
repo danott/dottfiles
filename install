@@ -2,22 +2,41 @@
 
 set -e
 
-cd "$HOME"
+DOTFILES_DIR="$HOME/Code/dottfiles"
 
-# install zsh
-if ! command -v zsh; then
-  sudo apt install -y zsh
+# Install Homebrew packages
+if [[ -f "$DOTFILES_DIR/Brewfile" ]]; then
+  echo "Installing Homebrew packages..."
+  cd "$DOTFILES_DIR"
+  brew bundle
 fi
 
-# change login shell
-sudo chsh $(whoami) -s $(which zsh)
+# Link dotfiles from home/ directory
+echo "Linking dotfiles..."
+cd "$DOTFILES_DIR/home"
 
-# Setup my actual dottfiles
-for link in .gitconfig .gitignore .irbrc .vimrc .zprofile .zshrc; do
-  if [ -L "$HOME/$link" ]; then
-    echo "Link '$link' already exists"
+while IFS= read -r -d '' file; do
+  relative_path="${file#./}"
+  source_path="$DOTFILES_DIR/home/$relative_path"
+  target_path="$HOME/$relative_path"
+
+  # Create parent directory if needed
+  mkdir -p "$(dirname "$target_path")"
+
+  # Link the file
+  if [[ -L "$target_path" ]]; then
+    current_target=$(readlink "$target_path")
+    if [[ "$current_target" == "$source_path" ]]; then
+      echo "Already linked: $relative_path"
+    else
+      echo "Linked to wrong target: $relative_path (points to: $current_target)"
+    fi
+  elif [[ -e "$target_path" ]]; then
+    echo "File exists (not symlink): $relative_path"
   else
-    echo "Linking '$link'"
-    ln -s "$HOME/Code/dottfiles/$link" .
+    echo "Linking: $relative_path"
+    ln -s "$source_path" "$target_path"
   fi
-done
+done < <(find . -type f -not -path '*/\.git/*' -print0)
+
+echo "Done!"

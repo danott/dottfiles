@@ -1,14 +1,23 @@
 # dottfiles
 
-These are my dottfiles. There are many like them, but these ones are mine.
+@danott's dotfiles. 
 
-### Installation
+## Structure
+
+Configuration files live in `home/`. The directory structure mirrors `$HOME`, so `home/.vimrc` gets symlinked to `~/.vimrc`, `home/.config/starship.toml` to `~/.config/starship.toml`, etc.
+
+The `install` script automatically symlinks everything from `home/` to my home directory. It also runs `brew bundle` to install packages from the `Brewfile`. I may remove this later.
+
+## Installation
 
 ```bash
-cd ~
 git clone git@github.com:danott/dottfiles.git $HOME/Code/dottfiles
-if [[ -f .gitconfig ]]; then
-  mv .gitconfig .gitconfig.old
-fi
-Code/dottfiles/install
+cd $HOME/Code/dottfiles
+./install
 ```
+
+The install script will tell me if any files already exist that need to be backed up or moved before linking.
+
+## Adding new configs
+
+Just add them to `home/` following the same path structure as my home directory. Run `./install` to link them.
