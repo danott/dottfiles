@@ -99,4 +99,8 @@ augroup END
 " Call immediately for current session
 call DisableAllSyntaxExceptComments()
 
-
+" That's a wrap
+set wrap
+set linebreak
+nnoremap <expr> j v:count ? 'j' : 'gj'
+nnoremap <expr> k v:count ? 'k' : 'gk'
