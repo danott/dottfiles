@@ -50,3 +50,11 @@ fi
 if command -v nvim &> /dev/null; then
   alias vim='nvim'
 fi
+
+# History search with arrow keys
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey "^[[A" up-line-or-beginning-search
+bindkey "^[[B" down-line-or-beginning-search
