@@ -15,28 +15,51 @@ fi
 echo "Linking dotfiles..."
 cd "$DOTTFILES_DIR/home"
 
-while IFS= read -r -d '' file; do
-  relative_path="${file#./}"
-  source_path="$DOTTFILES_DIR/home/$relative_path"
-  target_path="$HOME/$relative_path"
+# Directories to symlink as a whole (not individual files)
+LINK_DIRS=(
+  ".config/nvim"
+)
 
-  # Create parent directory if needed
+link_path() {
+  local source_path="$1"
+  local target_path="$2"
+  local label="$3"
+
   mkdir -p "$(dirname "$target_path")"
 
-  # Link the file
   if [[ -L "$target_path" ]]; then
     current_target=$(readlink "$target_path")
     if [[ "$current_target" == "$source_path" ]]; then
-      echo "Already linked: $relative_path"
+      echo "Already linked: $label"
     else
-      echo "Linked to wrong target: $relative_path (points to: $current_target)"
+      echo "Linked to wrong target: $label (points to: $current_target)"
     fi
   elif [[ -e "$target_path" ]]; then
-    echo "File exists (not symlink): $relative_path"
+    echo "Already exists (not symlink): $label"
   else
-    echo "Linking: $relative_path"
+    echo "Linking: $label"
     ln -s "$source_path" "$target_path"
   fi
+}
+
+for dir in "${LINK_DIRS[@]}"; do
+  link_path "$DOTTFILES_DIR/home/$dir" "$HOME/$dir" "$dir/"
+done
+
+while IFS= read -r -d '' file; do
+  relative_path="${file#./}"
+
+  # Skip files inside directories that are linked as a whole
+  skip=false
+  for dir in "${LINK_DIRS[@]}"; do
+    if [[ "$relative_path" == "$dir/"* ]]; then
+      skip=true
+      break
+    fi
+  done
+  [[ "$skip" == true ]] && continue
+
+  link_path "$DOTTFILES_DIR/home/$relative_path" "$HOME/$relative_path" "$relative_path"
 done < <(find . -type f -not -path '*/\.git/*' -print0)
 
 echo "Done!"
