@@ -1,5 +1,5 @@
 # PATH
-PATH="$PATH:$HOME/Code/dottfiles/bin" # My scripts
+PATH="$PATH:$HOME/dottfiles/bin" # My scripts
 PATH="$HOME/.local/bin:$PATH" # Claude Code native install
 export PATH
 
