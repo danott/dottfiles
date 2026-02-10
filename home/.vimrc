@@ -6,6 +6,10 @@ set updatetime=300
 " Leader key
 let mapleader = ","
 
+" fzf fuzzy finder
+set rtp+=/opt/homebrew/opt/fzf
+nnoremap <leader>t :FZF<CR>
+
 " File browser
 nnoremap <leader>e :Ex<CR>
 let g:netrw_banner = 0
@@ -104,3 +108,32 @@ set wrap
 set linebreak
 nnoremap <expr> j v:count ? 'j' : 'gj'
 nnoremap <expr> k v:count ? 'k' : 'gk'
+
+" Ruby LSP configuration
+lua <<EOF
+-- Configure Ruby LSP using built-in vim.lsp.config
+vim.lsp.config['ruby_lsp'] = {
+  cmd = { "bundle", "exec", "ruby-lsp" },
+  filetypes = { "ruby" },
+  root_markers = { "Gemfile", ".git" },
+}
+
+-- Auto-start LSP for Ruby files
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "ruby",
+  callback = function()
+    vim.lsp.enable('ruby_lsp')
+  end,
+})
+
+-- Format on save for Ruby files
+vim.api.nvim_create_autocmd("BufWritePre", {
+  pattern = "*.rb",
+  callback = function()
+    vim.lsp.buf.format({ async = false })
+  end,
+})
+EOF
+
+" Manual format command
+nnoremap <leader>f :lua vim.lsp.buf.format()<CR>
