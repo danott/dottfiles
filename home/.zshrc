@@ -1,5 +1,6 @@
 # PATH
-PATH="$PATH:$HOME/Code/dottfiles/bin"
+PATH="$PATH:$HOME/Code/dottfiles/bin" # My scripts
+PATH="$HOME/.local/bin:$PATH" # Claude Code native install
 export PATH
 
 # Editor
@@ -51,6 +52,11 @@ if command -v nvim &> /dev/null; then
   alias vim='nvim'
 fi
 
+alias gco='git checkout'
+alias gl='git pull'
+alias gp='git push'
+alias gca='git commit --all'
+
 # History search with arrow keys
 autoload -U up-line-or-beginning-search
 autoload -U down-line-or-beginning-search
@@ -58,3 +64,24 @@ zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
 bindkey "^[[A" up-line-or-beginning-search
 bindkey "^[[B" down-line-or-beginning-search
+
+# Require explicit CLAUDE_CONFIG_DIR selection
+claude() {
+  if [ -z "$CLAUDE_CONFIG_DIR" ]; then
+    echo "CLAUDE_CONFIG_DIR is not set. Pick an environment:" >&2
+    local envs=("$HOME/.claude_config_dirs"/*)
+    select dir in "${envs[@]##*/}"; do
+      if [ -n "$dir" ]; then
+        CLAUDE_CONFIG_DIR="$HOME/.claude_config_dirs/$dir" command claude "$@"
+        return
+      fi
+    done
+    return 1
+  fi
+  command claude "$@"
+}
+
+# https://pages.tobi.lutke.com/try/#install
+if command -v try &> /dev/null; then
+  eval "$(try init)"
+fi
