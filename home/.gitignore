@@ -5,3 +5,4 @@
 *.rbc
 tags
 .vscode
+.claude/settings.local.json
