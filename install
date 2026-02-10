@@ -2,22 +2,22 @@
 
 set -e
 
-DOTFILES_DIR="$HOME/Code/dottfiles"
+DOTTFILES_DIR="$HOME/dottfiles"
 
 # Install Homebrew packages
-if [[ -f "$DOTFILES_DIR/Brewfile" ]]; then
+if [[ -f "$DOTTFILES_DIR/Brewfile" ]]; then
   echo "Installing Homebrew packages..."
-  cd "$DOTFILES_DIR"
+  cd "$DOTTFILES_DIR"
   brew bundle
 fi
 
 # Link dotfiles from home/ directory
 echo "Linking dotfiles..."
-cd "$DOTFILES_DIR/home"
+cd "$DOTTFILES_DIR/home"
 
 while IFS= read -r -d '' file; do
   relative_path="${file#./}"
-  source_path="$DOTFILES_DIR/home/$relative_path"
+  source_path="$DOTTFILES_DIR/home/$relative_path"
   target_path="$HOME/$relative_path"
 
   # Create parent directory if needed

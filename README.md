@@ -11,8 +11,8 @@ The `install` script automatically symlinks everything from `home/` to my home d
 ## Installation
 
 ```bash
-git clone git@github.com:danott/dottfiles.git $HOME/Code/dottfiles
-cd $HOME/Code/dottfiles
+git clone git@github.com:danott/dottfiles.git $HOME/dottfiles
+cd $HOME/dottfiles
 ./install
 ```
 
