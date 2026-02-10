@@ -8,8 +8,9 @@
 -- e.g. vim.api.nvim_del_augroup_by_name("lazyvim_wrap_spell")
 
 vim.api.nvim_create_autocmd("FileType", {
-  pattern = "gitcommit",
+  pattern = { "markdown", "gitcommit" },
   callback = function()
+    vim.opt_local.conceallevel = 0
     vim.b.completion = false
   end,
 })
