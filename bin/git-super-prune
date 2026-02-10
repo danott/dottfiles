@@ -1,5 +1,60 @@
 #!/bin/sh
+#
+# Aggressively clean up local branches that have been merged or deleted on remote.
+#
+# 1. Fetches and prunes stale remote tracking branches
+# 2. Deletes local branches merged into the default branch
+# 3. Deletes local branches whose upstream is gone
 
-git delete-local-merged
-git remote prune origin
+set -e
 
+# Fetch latest and prune stale remote tracking branches
+git fetch --prune
+
+# Determine the default branch (main, master, etc.)
+default_branch=$(git symbolic-ref refs/remotes/origin/HEAD 2>/dev/null | sed 's@^refs/remotes/origin/@@') || default_branch=""
+
+if [ -z "$default_branch" ]; then
+  # Fallback: try common names
+  for branch in main master; do
+    if git show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+      default_branch="$branch"
+      break
+    fi
+  done
+fi
+
+if [ -z "$default_branch" ]; then
+  echo "Could not determine default branch"
+  exit 1
+fi
+
+current_branch=$(git branch --show-current)
+
+# Delete branches merged into the default branch
+git branch --merged "origin/$default_branch" | while read -r branch; do
+  # Remove leading whitespace and asterisk
+  branch=$(echo "$branch" | sed 's/^[* ]*//')
+
+  # Skip empty, default branch, or current branch
+  [ -z "$branch" ] && continue
+  [ "$branch" = "$default_branch" ] && continue
+  [ "$branch" = "$current_branch" ] && continue
+
+  echo "Deleting merged branch: $branch"
+  git branch -d "$branch" 2>/dev/null || true
+done
+
+# Delete branches whose upstream tracking branch is gone
+git branch -vv | grep ': gone]' | while read -r line; do
+  branch=$(echo "$line" | awk '{print $1}' | sed 's/^[* ]*//')
+
+  [ -z "$branch" ] && continue
+  [ "$branch" = "$default_branch" ] && continue
+  [ "$branch" = "$current_branch" ] && continue
+
+  echo "Deleting branch with gone upstream: $branch"
+  git branch -D "$branch" 2>/dev/null || true
+done
+
+echo "Done!"
