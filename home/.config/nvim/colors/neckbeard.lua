@@ -13,7 +13,10 @@ local plain = { "Constant", "String", "Character", "Number", "Boolean", "Float",
   "Identifier", "Function", "Statement", "Conditional", "Repeat", "Label",
   "Operator", "Keyword", "Exception", "PreProc", "Include", "Define", "Macro",
   "PreCondit", "Type", "StorageClass", "Structure", "Typedef", "Special",
-  "SpecialChar", "Tag", "Delimiter", "Debug", "Underlined", "Todo", "Error" }
+  "SpecialChar", "Tag", "Delimiter", "Debug", "Underlined", "Todo", "Error", "Title",
+  "Directory", "ModeMsg", "MoreMsg", "Question", "NonText", "SpecialKey", "Conceal",
+  "Added", "Changed", "Removed", "DiffAdd", "DiffChange", "DiffDelete", "DiffText",
+  "SignColumn", "LineNr", "CursorLineNr", "Folded", "FoldColumn", "WinSeparator" }
 
 for _, group in ipairs(plain) do
   hi(group, { link = "Normal" })
@@ -33,6 +36,10 @@ hi("Comment", { fg = comment })
 hi("SpecialComment", { fg = comment })
 hi("@comment", { fg = comment })
 hi("@comment.documentation", { fg = comment })
+
+-- Messages that should stand out, but without color
+hi("ErrorMsg", { bold = true })
+hi("WarningMsg", { bold = true })
 
 -- UI elements — use reverse/bold to adapt to any terminal background
 hi("CursorLine", {})
