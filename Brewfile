@@ -8,6 +8,7 @@ brew "neovim"
 brew "tmux"
 brew "starship"
 brew "autojump"
+brew "direnv"
 
 # Ruby
 brew "rbenv"
