@@ -1,0 +1,77 @@
+#!/usr/bin/env ruby
+
+require "fileutils"
+
+DOCS = File.join(Dir.home, "Documents")
+INBOX = File.join(DOCS, "Inbox")
+
+today = Time.now
+date = today.strftime("%Y-%m-%d")
+week = today.strftime("%Y-w%V")
+
+flags = ARGV.select { |a| a.start_with?("--") }
+args = ARGV.reject { |a| a.start_with?("--") }
+
+flag_print = flags.include?("--print")
+flag_touch = flags.include?("--touch")
+
+target = case args[0]
+when "daily"
+  File.join(INBOX, "#{date}-daily.md")
+when "journal"
+  File.join(INBOX, "#{date}-journal.md")
+when "scratch"
+  File.join(INBOX, "#{date}-scratch.md")
+when "capture"
+  timestamp = today.strftime("%Y-%m-%d-capture-%H%M%S")
+  File.join(INBOX, "#{timestamp}.md")
+when "weekly"
+  File.join(DOCS, "Now", week)
+when "inbox"
+  File.join(DOCS, "Inbox")
+when "now"
+  File.join(DOCS, "Now")
+when "someday"
+  File.join(DOCS, "Someday")
+when "logbook"
+  File.join(DOCS, "Logbook")
+when "resources"
+  File.join(DOCS, "Resources")
+else
+  $stderr.puts "Usage: tend [--print] [--touch] <target>"
+  $stderr.puts ""
+  $stderr.puts "Targets:"
+  $stderr.puts "  daily      today's daily work note"
+  $stderr.puts "  journal    today's journal entry"
+  $stderr.puts "  scratch    today's scratch note"
+  $stderr.puts "  capture    new timestamped capture"
+  $stderr.puts "  weekly     this week's folder"
+  $stderr.puts "  inbox      inbox folder"
+  $stderr.puts "  now        now folder"
+  $stderr.puts "  someday    someday folder"
+  $stderr.puts "  logbook    logbook folder"
+  $stderr.puts "  resources  resources folder"
+  $stderr.puts ""
+  $stderr.puts "Flags:"
+  $stderr.puts "  --print    print the path"
+  $stderr.puts "  --touch    ensure the file/directory exists"
+  $stderr.puts ""
+  $stderr.puts "Default: open target in $EDITOR"
+  exit 1
+end
+
+if flag_touch
+  if target.end_with?(".md")
+    FileUtils.mkdir_p(File.dirname(target))
+    FileUtils.touch(target)
+  else
+    FileUtils.mkdir_p(target)
+  end
+end
+
+if flag_print
+  puts target
+  exit
+end
+
+exec(ENV.fetch("EDITOR", "vim"), target)

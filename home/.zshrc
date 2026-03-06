@@ -47,6 +47,9 @@ fi
 # autojump
 [ -f $(brew --prefix)/etc/profile.d/autojump.sh ] && . $(brew --prefix)/etc/profile.d/autojump.sh
 
+# direnv
+eval "$(direnv hook zsh)"
+
 # Aliases
 if command -v nvim &> /dev/null; then
   alias vim='nvim'
@@ -56,6 +59,25 @@ alias gco='git checkout'
 alias gl='git pull'
 alias gp='git push'
 alias gca='git commit --all'
+
+# tend — metabolic workspace
+alias td='tend daily'
+alias tdo='open $(tend --touch --print daily)'
+
+alias tsv='tend scratch'
+alias tso='open $(tend --touch --print scratch)'
+
+alias tj='tend journal'
+alias tjo='open $(tend --touch --print journal)'
+
+alias tc='tend capture'
+alias tco='open $(tend --touch --print capture)'
+
+alias ti='cd $(tend --print inbox)'
+alias tio='open $(tend --print inbox)'
+
+alias tn='cd $(tend --print now)'
+alias tno='open $(tend --print now)'
 
 # History search with arrow keys
 autoload -U up-line-or-beginning-search
