@@ -10,6 +10,10 @@ brew "starship"
 brew "autojump"
 brew "direnv"
 
+# Apps
+cask "ghostty"
+cask "hammerspoon"
+
 # Ruby
 brew "rbenv"
 brew "ruby-build"
