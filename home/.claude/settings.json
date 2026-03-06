@@ -1,20 +1,25 @@
 {
-  "model": "opus",
   "permissions": {
     "allow": [
       "mcp__claude_ai_*__*_get_*",
       "mcp__claude_ai_*__*_read_*",
       "mcp__claude_ai_*__*_search_*",
       "mcp__claude_ai_*__*_list_*",
-      "Bash(git *)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git branch*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git stash*)",
+      "Bash(git show*)",
+      "Bash(git rev-parse*)",
       "Bash(gh pr view*)",
       "Bash(gh pr list*)",
       "Bash(gh pr checks*)",
       "Bash(gh pr diff*)",
       "Bash(gh issue view*)",
       "Bash(gh issue list*)",
-      "Bash(gh api *)",
-      "Bash(gh pr create*)",
       "Bash(ruby *)",
       "Bash(bundle exec *)",
       "Bash(bundle install*)",
@@ -39,10 +44,20 @@
       "Bash([ *)",
       "Bash(which *)",
       "Bash(brew info *)",
-      "Bash(curl *)",
+      "Bash(head *)",
+      "Bash(grep *)",
       "WebFetch(*)",
-      "Read(/tmp/**)"
+      "Read(/tmp/**)",
+      "Read(~/Code/**)",
+      "Search(~/Code/**)",
+      "Search(./**)",
+      "Edit(./**)",
+      "Edit(~/Code/**)"
     ],
     "deny": []
+  },
+  "enabledPlugins": {
+    "coding-standards@planning-center": true,
+    "swift-lsp@claude-plugins-official": true
   }
 }
