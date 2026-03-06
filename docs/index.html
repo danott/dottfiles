@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Neovim — Quick Reference</title>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'media',
+    theme: { extend: { fontSize: { '2xs': '0.75rem' } } }
+  }
+</script>
+<style type="text/tailwindcss">
+  @layer base {
+    body { @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100; }
+  }
+  @layer components {
+    .card { @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded px-2.5 py-2 mb-2; }
+    .card-title { @apply text-sm font-semibold mb-1.5 text-gray-800 dark:text-gray-200 uppercase tracking-wide; }
+    .card-subtitle { @apply text-xs font-normal normal-case tracking-normal text-gray-500 dark:text-gray-400; }
+    .grid-keys { @apply grid gap-y-0; }
+    .key-row { @apply flex items-baseline gap-2 py-px; }
+    .key-row kbd { @apply shrink-0 min-w-[8rem] text-right font-mono text-2xs px-1 py-px bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded text-gray-800 dark:text-gray-200; }
+    .key-row span { @apply text-2xs text-gray-600 dark:text-gray-400; }
+  }
+</style>
+
+</head>
+<body class="antialiased p-3">
+
+  <div class="flex gap-3 mb-2 text-2xs">
+    <span class="font-semibold text-gray-800 dark:text-gray-200"><span class="underline">n</span>eovim</span>
+    <a href="tmux/index.html" class="text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">t<span class="font-bold">m</span>ux</a>
+  </div>
+
+  <div class="grid grid-cols-4 gap-3 items-start">
+
+    <div>
+<div class="card">
+  <h2 class="card-title">Text Objects</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>iw / aw</kbd><span>inner word / a word</span></div>
+          <div class="key-row"><kbd>is / as</kbd><span>inner sentence / a sentence</span></div>
+          <div class="key-row"><kbd>ip / ap</kbd><span>inner paragraph / a paragraph</span></div>
+          <div class="key-row"><kbd>i) / a)</kbd><span>inner parens / a parens</span></div>
+          <div class="key-row"><kbd>i' / a'</kbd><span>inner single quotes</span></div>
+          <div class="key-row"><kbd>i" / a"</kbd><span>inner double quotes</span></div>
+          <div class="key-row"><kbd>it / at</kbd><span>inner tag / a tag</span></div>
+          <div class="key-row"><kbd>ih</kbd><span>inner diff hunk</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Surround</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>cs])</kbd><span>change surrounding [] to ()</span></div>
+          <div class="key-row"><kbd>ds]</kbd><span>delete surrounding []</span></div>
+          <div class="key-row"><kbd>ysi[w|l]"</kbd><span>insert " around word/line</span></div>
+          <div class="key-row"><kbd>S"</kbd><span>wrap visual selection with "</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Treesitter</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>gri</kbd><span>start incremental selection</span></div>
+          <div class="key-row"><kbd>grn</kbd><span>increment select node</span></div>
+          <div class="key-row"><kbd>grp</kbd><span>decrement select node</span></div>
+          <div class="key-row"><kbd>grs</kbd><span>increment select scope</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Comment</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>[count]gcc</kbd><span>comment line(s)</span></div>
+          <div class="key-row"><kbd>gc[O|o]</kbd><span>comment line above / below</span></div>
+          <div class="key-row"><kbd>gcA</kbd><span>comment end of line</span></div>
+          <div class="key-row"><kbd>gc{motion}</kbd><span>comment with motion</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Folds / Macros</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>za</kbd><span>toggle fold</span></div>
+          <div class="key-row"><kbd>zR</kbd><span>open all folds</span></div>
+          <div class="key-row"><kbd>qq / @q</kbd><span>record / play macro</span></div>
+  </div>
+</div>
+
+    </div>
+
+    <div>
+<div class="card">
+  <h2 class="card-title">Motions</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>[f|F]&lt;char&gt;</kbd><span>find char and jump to it</span></div>
+          <div class="key-row"><kbd>[t|T]&lt;char&gt;</kbd><span>find char and jump until it</span></div>
+          <div class="key-row"><kbd>w / b</kbd><span>jump by word forward / backward</span></div>
+          <div class="key-row"><kbd>[shift]-/</kbd><span>search up / down</span></div>
+          <div class="key-row"><kbd># / *</kbd><span>search word back / forward</span></div>
+          <div class="key-row"><kbd>ctrl-o / ctrl-i</kbd><span>go back / forward</span></div>
+          <div class="key-row"><kbd>^ / $ / 0</kbd><span>first char / end / start of line</span></div>
+          <div class="key-row"><kbd>gg / G</kbd><span>first / last line</span></div>
+          <div class="key-row"><kbd>H / M / L</kbd><span>high / middle / low of window</span></div>
+          <div class="key-row"><kbd>ctrl-d / ctrl-u</kbd><span>scroll down / up half screens</span></div>
+          <div class="key-row"><kbd>zz</kbd><span>center current line</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Operators</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>d / y / c</kbd><span>delete / yank / change</span></div>
+          <div class="key-row"><kbd>&gt; / &lt;</kbd><span>indent / dedent</span></div>
+          <div class="key-row"><kbd>=</kbd><span>reformat</span></div>
+          <div class="key-row"><kbd>~</kbd><span>toggle case</span></div>
+          <div class="key-row"><kbd>gq</kbd><span>format lines to textwidth</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Basic Usage</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>i / I</kbd><span>insert before cursor / line start</span></div>
+          <div class="key-row"><kbd>a / A</kbd><span>insert after cursor / line end</span></div>
+          <div class="key-row"><kbd>o / O</kbd><span>new line below / above</span></div>
+          <div class="key-row"><kbd>x / X</kbd><span>delete char after / before</span></div>
+          <div class="key-row"><kbd>r / R</kbd><span>replace char / overwrite</span></div>
+          <div class="key-row"><kbd>D</kbd><span>delete to end of line</span></div>
+          <div class="key-row"><kbd>.</kbd><span>repeat last command</span></div>
+          <div class="key-row"><kbd>ZZ / ZQ</kbd><span>write+exit / exit</span></div>
+          <div class="key-row"><kbd>][b</kbd><span>cycle buffers</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Custom Keymaps</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>&lt;leader&gt;y</kbd><span>copy to system clipboard</span></div>
+          <div class="key-row"><kbd>n</kbd><span>next match</span></div>
+          <div class="key-row"><kbd>N</kbd><span>previous match</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;n</kbd><span>clear search highlight</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;q</kbd><span>toggle quickfix</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;l</kbd><span>toggle loclist</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;m</kbd><span>messages to buffer</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;x</kbd><span>execute current line</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;&lt;leader&gt;x</kbd><span>execute current file</span></div>
+  </div>
+</div>
+
+    </div>
+
+    <div>
+<div class="card">
+  <h2 class="card-title">LSP <span class="card-subtitle">(gl prefix)</span></h2>
+  <div class="grid-keys">
+    
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Diagnostics <span class="card-subtitle">(gd prefix)</span></h2>
+  <div class="grid-keys">
+    
+  </div>
+</div>
+
+    </div>
+
+    <div>
+<div class="card">
+  <h2 class="card-title">Pickers</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>&lt;leader&gt;e</kbd><span>toggle explorer</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;f</kbd><span>find files</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;b</kbd><span>find buffers</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;s</kbd><span>live grep</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;w</kbd><span>grep word</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;g</kbd><span>lazygit</span></div>
+          <div class="key-row"><kbd>z=</kbd><span>spell suggest</span></div>
+          <div class="key-row"><kbd>ctrl-p / ctrl-n</kbd><span>previous / next</span></div>
+          <div class="key-row"><kbd>ctrl-u / ctrl-d</kbd><span>scroll preview up / down</span></div>
+          <div class="key-row"><kbd>return</kbd><span>open result</span></div>
+          <div class="key-row"><kbd>ctrl-v</kbd><span>open in vertical split</span></div>
+          <div class="key-row"><kbd>ctrl-x</kbd><span>open in horizontal split</span></div>
+          <div class="key-row"><kbd>ctrl-t</kbd><span>open in tab</span></div>
+          <div class="key-row"><kbd>ctrl-g</kbd><span>toggle fuzzy / live grep</span></div>
+          <div class="key-row"><kbd>ctrl-q</kbd><span>send to quickfix</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Completion</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>ctrl-p / ctrl-n</kbd><span>previous / next</span></div>
+          <div class="key-row"><kbd>ctrl-u / ctrl-d</kbd><span>scroll docs up / down</span></div>
+          <div class="key-row"><kbd>ctrl-y</kbd><span>confirm selection</span></div>
+          <div class="key-row"><kbd>ctrl-e</kbd><span>abort</span></div>
+          <div class="key-row"><kbd>ctrl-space</kbd><span>trigger completion</span></div>
+          <div class="key-row"><kbd>tab / shift-tab</kbd><span>snippet forward / backward</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Quickfix / Loclist</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>&lt;leader&gt;q</kbd><span>toggle quickfix</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;l</kbd><span>toggle loclist</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Search &amp; Replace</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>cdo s/\vfoo/bar/g | write</kbd><span>replace per line</span></div>
+          <div class="key-row"><kbd>cfdo %s/\vfoo/bar/g | write</kbd><span>replace per file</span></div>
+          <div class="key-row"><kbd>cfdo write</kbd><span>write all files</span></div>
+          <div class="key-row"><kbd>cfdo normal undo</kbd><span>undo last change</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Git Hunks <span class="card-subtitle">(&lt;leader&gt;h)</span></h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>&lt;leader&gt;hs</kbd><span>stage hunk</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;hr</kbd><span>reset hunk</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;hb</kbd><span>stage buffer</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;hR</kbd><span>reset buffer</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;hF</kbd><span>toggle current line blame</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;hdt</kbd><span>diff this</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;ht</kbd><span>toggle deleted</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;hi</kbd><span>preview hunk float</span></div>
+          <div class="key-row"><kbd>&lt;leader&gt;hI</kbd><span>preview hunk inline</span></div>
+          <div class="key-row"><kbd>ih</kbd><span>select hunk</span></div>
+  </div>
+</div>
+
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'm') window.location.href = 'tmux/index.html';
+    });
+  </script>
+</body>
+</html>

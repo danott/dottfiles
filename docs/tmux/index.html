@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Tmux — Quick Reference</title>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'media',
+    theme: { extend: { fontSize: { '2xs': '0.75rem' } } }
+  }
+</script>
+<style type="text/tailwindcss">
+  @layer base {
+    body { @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100; }
+  }
+  @layer components {
+    .card { @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded px-2.5 py-2 mb-2; }
+    .card-title { @apply text-sm font-semibold mb-1.5 text-gray-800 dark:text-gray-200 uppercase tracking-wide; }
+    .card-subtitle { @apply text-xs font-normal normal-case tracking-normal text-gray-500 dark:text-gray-400; }
+    .grid-keys { @apply grid gap-y-0; }
+    .key-row { @apply flex items-baseline gap-2 py-px; }
+    .key-row kbd { @apply shrink-0 min-w-[8rem] text-right font-mono text-2xs px-1 py-px bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded text-gray-800 dark:text-gray-200; }
+    .key-row span { @apply text-2xs text-gray-600 dark:text-gray-400; }
+  }
+</style>
+
+</head>
+<body class="antialiased p-3">
+
+  <div class="flex gap-3 mb-2 text-2xs">
+    <a href="../index.html" class="text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"><span class="font-bold">n</span>eovim</a>
+    <span class="font-semibold text-gray-800 dark:text-gray-200">t<span class="underline">m</span>ux</span>
+  </div>
+
+  <div class="max-w-xs">
+<div class="card">
+  <h2 class="card-title">Sessions <span class="card-subtitle">(prefix: ctrl-t)</span></h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>ctrl-t r</kbd><span>reload config</span></div>
+          <div class="key-row"><kbd>ctrl-t ctrl-l</kbd><span>clear screen</span></div>
+          <div class="key-row"><kbd>ctrl-t ctrl-h</kbd><span>clear screen + scrollback</span></div>
+          <div class="key-row"><kbd>ctrl-t W</kbd><span>new work session (~/Code)</span></div>
+          <div class="key-row"><kbd>ctrl-t P</kbd><span>new personal session (~/Personal)</span></div>
+          <div class="key-row"><kbd>ta</kbd><span>attach/create session for cwd</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Windows</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>ctrl-t s</kbd><span>: "  "swap-window -d -t '%%'"</span></div>
+          <div class="key-row"><kbd>ctrl-t &</kbd><span>kill window</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Panes</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>C-h</kbd><span>navigate left (vim aware)</span></div>
+          <div class="key-row"><kbd>C-j</kbd><span>navigate down (vim aware)</span></div>
+          <div class="key-row"><kbd>C-k</kbd><span>navigate up (vim aware)</span></div>
+          <div class="key-row"><kbd>C-l</kbd><span>navigate right (vim aware)</span></div>
+          <div class="key-row"><kbd>S-C-Left</kbd><span>resize pane (coarse, 7)</span></div>
+          <div class="key-row"><kbd>S-C-Right</kbd><span>resize pane (coarse, 7)</span></div>
+          <div class="key-row"><kbd>S-C-Down</kbd><span>resize pane (coarse, 7)</span></div>
+          <div class="key-row"><kbd>S-C-Up</kbd><span>resize pane (coarse, 7)</span></div>
+          <div class="key-row"><kbd>S-Left</kbd><span>resize pane (fine, 2)</span></div>
+          <div class="key-row"><kbd>S-Right</kbd><span>resize pane (fine, 2)</span></div>
+          <div class="key-row"><kbd>S-Down</kbd><span>resize pane (fine, 2)</span></div>
+          <div class="key-row"><kbd>S-Up</kbd><span>resize pane (fine, 2)</span></div>
+          <div class="key-row"><kbd>ctrl-t S</kbd><span>: "  "swap-pane -t '%%'"</span></div>
+          <div class="key-row"><kbd>ctrl-t x</kbd><span>kill pane</span></div>
+          <div class="key-row"><kbd>ctrl-t h</kbd><span>split vertical (current path)</span></div>
+          <div class="key-row"><kbd>ctrl-t j</kbd><span>split horizontal (current path)</span></div>
+          <div class="key-row"><kbd>ctrl-t k</kbd><span>split horizontal (current path)</span></div>
+          <div class="key-row"><kbd>ctrl-t l</kbd><span>split vertical (current path)</span></div>
+  </div>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Copy Mode</h2>
+  <div class="grid-keys">
+    <div class="key-row"><kbd>v</kbd><span>copy mode: begin-selection</span></div>
+  </div>
+</div>
+
+  </div>
+
+  <script>
+    document.addEventListener('keydown', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+      if (e.key === 'n') window.location.href = '../index.html';
+    });
+  </script>
+</body>
+</html>

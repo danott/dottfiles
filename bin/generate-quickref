@@ -1,0 +1,373 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Generates a quick reference cheatsheet website from dotfiles config.
+# Parses lua keymaps and tmux.conf bindings, outputs static HTML to docs/.
+
+require "fileutils"
+
+DOTTFILES = File.expand_path("..", __dir__)
+NVIM_DIR = File.join(DOTTFILES, "home/.config/nvim/lua/d")
+TMUX_CONF = File.join(DOTTFILES, "home/.tmux.conf")
+DOCS_DIR = File.join(DOTTFILES, "docs")
+
+# --- Parsers ---
+
+def parse_lua_keymaps(file)
+  return [] unless File.exist?(file)
+
+  keymaps = []
+  File.readlines(file).each do |line|
+    # Match: vim.keymap.set('n', '<leader>x', ..., { desc = 'foo' })
+    # Match: vim.keymap.set({ 'n', 'v' }, '<Leader>y', ..., { desc = 'foo' })
+    # Match: map('n', '<leader>hs', ..., { desc = 'stage hunk' })
+    if line =~ /(?:vim\.keymap\.set|map)\s*\(\s*(?:\{[^}]*\}|'[^']*')\s*,\s*'([^']*)'\s*,.*?desc\s*=\s*'([^']*)'/
+      keymaps << { key: $1, desc: $2 }
+    end
+  end
+  keymaps
+end
+
+def parse_lazy_keys(file)
+  return [] unless File.exist?(file)
+
+  keymaps = []
+  File.readlines(file).each do |line|
+    # Match: { '<leader>f', function() ... end, desc = 'find files' },
+    # Match: { '<leader>f', function() ... end, mode = { 'n', 'x' }, desc = 'find files' },
+    if line =~ /\{\s*'([^']+)'\s*,.*?desc\s*=\s*'([^']*)'/
+      keymaps << { key: $1, desc: $2 }
+    end
+  end
+  keymaps
+end
+
+def parse_tmux_bindings(file)
+  return [] unless File.exist?(file)
+
+  bindings = []
+  File.readlines(file).each do |line|
+    line = line.strip
+    next if line.start_with?("#") || line.empty?
+
+    case line
+    when /^bind-key\s+-n\s+(\S+)\s+.*#\s*(.+)/
+      bindings << { key: $1, desc: $2.strip }
+    when /^bind-key\s+-n\s+(C-[hjkl])\s+if-shell.*select-pane\s+-([LDUR])/
+      dir = { "L" => "left", "D" => "down", "U" => "up", "R" => "right" }[$2]
+      bindings << { key: $1, desc: "navigate #{dir} (vim aware)" }
+    when /^bind-key\s+-n\s+(S-C-\w+)\s+resize-pane\s+-\w\s+(\d+)/
+      bindings << { key: $1, desc: "resize pane (coarse, #{$2})" }
+    when /^bind-key\s+-n\s+(S-\w+)\s+resize-pane\s+-\w\s+(\d+)/
+      bindings << { key: $1, desc: "resize pane (fine, #{$2})" }
+    when /^bind-key\s+(\S+)\s+.*#\s*(.+)/
+      bindings << { key: "ctrl-t #{$1}", desc: $2.strip }
+    when /^bind-key\s+-r\s+(\S+)\s+/
+      # skip repeatable prefix binds
+    when /^bind-key\s+(\S+)\s+source-file/
+      bindings << { key: "ctrl-t #{$1}", desc: "reload config" }
+    when /^bind-key\s+(\S+)\s+kill-window/
+      bindings << { key: "ctrl-t #{$1}", desc: "kill window" }
+    when /^bind-key\s+(\S+)\s+kill-pane/
+      bindings << { key: "ctrl-t #{$1}", desc: "kill pane" }
+    when /^bind-key\s+(C-l)\s+send-keys\s+C-l/
+      bindings << { key: "ctrl-t ctrl-l", desc: "clear screen" }
+    when /^bind-key\s+(C-h)\s+send-keys/
+      bindings << { key: "ctrl-t ctrl-h", desc: "clear screen + scrollback" }
+    when /^bind-key\s+(\S+)\s+command-prompt.*[Ww]ork session/i
+      bindings << { key: "ctrl-t #{$1}", desc: "new work session (~/Code)" }
+    when /^bind-key\s+(\S+)\s+command-prompt.*[Pp]ersonal session/i
+      bindings << { key: "ctrl-t #{$1}", desc: "new personal session (~/Personal)" }
+    when /^bind-key\s+(\S+)\s+command-prompt.*[Ss]wap.*window/i
+      bindings << { key: "ctrl-t #{$1}", desc: "swap windows" }
+    when /^bind-key\s+(\S+)\s+display-panes.*[Ss]wap.*pane/i
+      bindings << { key: "ctrl-t #{$1}", desc: "swap panes" }
+    when /^bind\s+(\S+)\s+split-window\s+-v/
+      bindings << { key: "ctrl-t #{$1}", desc: "split horizontal (current path)" }
+    when /^bind\s+(\S+)\s+split-window\s+-h/
+      bindings << { key: "ctrl-t #{$1}", desc: "split vertical (current path)" }
+    when /^bind-key\s+-Tcopy-mode-vi\s+'(\S+)'\s+send\s+-X\s+(.*)/
+      bindings << { key: $1, desc: "copy mode: #{$2.strip}" }
+    end
+  end
+  bindings
+end
+
+# --- HTML Generation ---
+
+HEAD = <<~HTML
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: { extend: { fontSize: { '2xs': '0.75rem' } } }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    @layer base {
+      body { @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100; }
+    }
+    @layer components {
+      .card { @apply bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded px-2.5 py-2 mb-2; }
+      .card-title { @apply text-sm font-semibold mb-1.5 text-gray-800 dark:text-gray-200 uppercase tracking-wide; }
+      .card-subtitle { @apply text-xs font-normal normal-case tracking-normal text-gray-500 dark:text-gray-400; }
+      .grid-keys { @apply grid gap-y-0; }
+      .key-row { @apply flex items-baseline gap-2 py-px; }
+      .key-row kbd { @apply shrink-0 min-w-[8rem] text-right font-mono text-2xs px-1 py-px bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded text-gray-800 dark:text-gray-200; }
+      .key-row span { @apply text-2xs text-gray-600 dark:text-gray-400; }
+    }
+  </style>
+HTML
+
+def key_row(key, desc)
+  key = key.gsub("<leader>", "&lt;leader&gt;").gsub("<Leader>", "&lt;leader&gt;")
+  %(<div class="key-row"><kbd>#{key}</kbd><span>#{desc}</span></div>)
+end
+
+def card(title, rows, subtitle: nil)
+  sub = subtitle ? %( <span class="card-subtitle">#{subtitle}</span>) : ""
+  rows_html = rows.map { |r| key_row(r[:key], r[:desc]) }.join("\n          ")
+  <<~HTML
+      <div class="card">
+        <h2 class="card-title">#{title}#{sub}</h2>
+        <div class="grid-keys">
+          #{rows_html}
+        </div>
+      </div>
+  HTML
+end
+
+def nav_links(active, prefix: "")
+  pages = { "neovim" => "#{prefix}index.html", "tmux" => "#{prefix}tmux/index.html" }
+  pages.map do |name, href|
+    if name == active
+      short = name == "neovim" ? '<span class="underline">n</span>eovim' : 't<span class="underline">m</span>ux'
+      %(<span class="font-semibold text-gray-800 dark:text-gray-200">#{short}</span>)
+    else
+      short = name == "neovim" ? '<span class="font-bold">n</span>eovim' : 't<span class="font-bold">m</span>ux'
+      %(<a href="#{href}" class="text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">#{short}</a>)
+    end
+  end.join("\n    ")
+end
+
+# --- Parse everything ---
+
+keymaps = parse_lua_keymaps(File.join(NVIM_DIR, "keymaps.lua"))
+lsp_keymaps = parse_lua_keymaps(File.join(NVIM_DIR, "lsp/init.lua"))
+diag_keymaps = parse_lua_keymaps(File.join(NVIM_DIR, "diagnostic.lua"))
+snacks_keymaps = parse_lazy_keys(File.join(NVIM_DIR, "plugins/snacks.lua"))
+gitsigns_keymaps = parse_lua_keymaps(File.join(NVIM_DIR, "plugins/gitsigns.lua"))
+tmux_bindings = parse_tmux_bindings(TMUX_CONF)
+
+# --- Static cards (vim builtins that aren't in config files) ---
+
+text_objects = [
+  { key: "iw / aw", desc: "inner word / a word" },
+  { key: "is / as", desc: "inner sentence / a sentence" },
+  { key: "ip / ap", desc: "inner paragraph / a paragraph" },
+  { key: 'i) / a)', desc: "inner parens / a parens" },
+  { key: "i' / a'", desc: "inner single quotes" },
+  { key: 'i" / a"', desc: "inner double quotes" },
+  { key: "it / at", desc: "inner tag / a tag" },
+  { key: "ih", desc: "inner diff hunk" },
+]
+
+surround = [
+  { key: "cs])", desc: "change surrounding [] to ()" },
+  { key: "ds]", desc: "delete surrounding []" },
+  { key: 'ysi[w|l]"', desc: "insert \" around word/line" },
+  { key: 'S"', desc: "wrap visual selection with \"" },
+]
+
+treesitter = [
+  { key: "gri", desc: "start incremental selection" },
+  { key: "grn", desc: "increment select node" },
+  { key: "grp", desc: "decrement select node" },
+  { key: "grs", desc: "increment select scope" },
+]
+
+motions = [
+  { key: "[f|F]&lt;char&gt;", desc: "find char and jump to it" },
+  { key: "[t|T]&lt;char&gt;", desc: "find char and jump until it" },
+  { key: "w / b", desc: "jump by word forward / backward" },
+  { key: "[shift]-/", desc: "search up / down" },
+  { key: "# / *", desc: "search word back / forward" },
+  { key: "ctrl-o / ctrl-i", desc: "go back / forward" },
+  { key: "^ / $ / 0", desc: "first char / end / start of line" },
+  { key: "gg / G", desc: "first / last line" },
+  { key: "H / M / L", desc: "high / middle / low of window" },
+  { key: "ctrl-d / ctrl-u", desc: "scroll down / up half screens" },
+  { key: "zz", desc: "center current line" },
+]
+
+operators = [
+  { key: "d / y / c", desc: "delete / yank / change" },
+  { key: "&gt; / &lt;", desc: "indent / dedent" },
+  { key: "=", desc: "reformat" },
+  { key: "~", desc: "toggle case" },
+  { key: "gq", desc: "format lines to textwidth" },
+]
+
+basic = [
+  { key: "i / I", desc: "insert before cursor / line start" },
+  { key: "a / A", desc: "insert after cursor / line end" },
+  { key: "o / O", desc: "new line below / above" },
+  { key: "x / X", desc: "delete char after / before" },
+  { key: "r / R", desc: "replace char / overwrite" },
+  { key: "D", desc: "delete to end of line" },
+  { key: ".", desc: "repeat last command" },
+  { key: "ZZ / ZQ", desc: "write+exit / exit" },
+  { key: "][b", desc: "cycle buffers" },
+]
+
+comment = [
+  { key: "[count]gcc", desc: "comment line(s)" },
+  { key: "gc[O|o]", desc: "comment line above / below" },
+  { key: "gcA", desc: "comment end of line" },
+  { key: "gc{motion}", desc: "comment with motion" },
+]
+
+folds_etc = [
+  { key: "za", desc: "toggle fold" },
+  { key: "zR", desc: "open all folds" },
+  { key: "qq / @q", desc: "record / play macro" },
+]
+
+completion = [
+  { key: "ctrl-p / ctrl-n", desc: "previous / next" },
+  { key: "ctrl-u / ctrl-d", desc: "scroll docs up / down" },
+  { key: "ctrl-y", desc: "confirm selection" },
+  { key: "ctrl-e", desc: "abort" },
+  { key: "ctrl-space", desc: "trigger completion" },
+  { key: "tab / shift-tab", desc: "snippet forward / backward" },
+]
+
+search_replace = [
+  { key: "cdo s/\\vfoo/bar/g | write", desc: "replace per line" },
+  { key: "cfdo %s/\\vfoo/bar/g | write", desc: "replace per file" },
+  { key: "cfdo write", desc: "write all files" },
+  { key: "cfdo normal undo", desc: "undo last change" },
+]
+
+picker_common = [
+  { key: "ctrl-p / ctrl-n", desc: "previous / next" },
+  { key: "ctrl-u / ctrl-d", desc: "scroll preview up / down" },
+  { key: "return", desc: "open result" },
+  { key: "ctrl-v", desc: "open in vertical split" },
+  { key: "ctrl-x", desc: "open in horizontal split" },
+  { key: "ctrl-t", desc: "open in tab" },
+  { key: "ctrl-g", desc: "toggle fuzzy / live grep" },
+  { key: "ctrl-q", desc: "send to quickfix" },
+]
+
+# --- Build neovim page ---
+
+FileUtils.mkdir_p(DOCS_DIR)
+FileUtils.mkdir_p(File.join(DOCS_DIR, "tmux"))
+
+nvim_html = <<~HTML
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <title>Neovim — Quick Reference</title>
+    #{HEAD}
+  </head>
+  <body class="antialiased p-3">
+
+    <div class="flex gap-3 mb-2 text-2xs">
+      #{nav_links("neovim")}
+    </div>
+
+    <div class="grid grid-cols-4 gap-3 items-start">
+
+      <div>
+  #{card("Text Objects", text_objects)}
+  #{card("Surround", surround)}
+  #{card("Treesitter", treesitter)}
+  #{card("Comment", comment)}
+  #{card("Folds / Macros", folds_etc)}
+      </div>
+
+      <div>
+  #{card("Motions", motions)}
+  #{card("Operators", operators)}
+  #{card("Basic Usage", basic)}
+  #{card("Custom Keymaps", keymaps)}
+      </div>
+
+      <div>
+  #{card("LSP", lsp_keymaps, subtitle: "(gl prefix)")}
+  #{card("Diagnostics", diag_keymaps, subtitle: "(gd prefix)")}
+      </div>
+
+      <div>
+  #{card("Pickers", snacks_keymaps + picker_common)}
+  #{card("Completion", completion)}
+  #{card("Quickfix / Loclist", keymaps.select { |k| k[:desc] =~ /quickfix|loclist/i })}
+  #{card("Search &amp; Replace", search_replace)}
+  #{card("Git Hunks", gitsigns_keymaps, subtitle: "(&lt;leader&gt;h)")}
+      </div>
+
+    </div>
+
+    <script>
+      document.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.key === 'm') window.location.href = 'tmux/index.html';
+      });
+    </script>
+  </body>
+  </html>
+HTML
+
+# --- Build tmux page ---
+
+# Group tmux bindings
+sessions = tmux_bindings.select { |b| b[:desc] =~ /session|reload|clear/i }
+sessions << { key: "ta", desc: "attach/create session for cwd" }
+windows = tmux_bindings.select { |b| b[:desc] =~ /window|kill window/i }
+panes = tmux_bindings.select { |b| b[:desc] =~ /pane|split|navigate|resize|swap pane/i }
+copy = tmux_bindings.select { |b| b[:desc] =~ /copy mode/i }
+
+tmux_html = <<~HTML
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <title>Tmux — Quick Reference</title>
+    #{HEAD}
+  </head>
+  <body class="antialiased p-3">
+
+    <div class="flex gap-3 mb-2 text-2xs">
+      #{nav_links("tmux", prefix: "../")}
+    </div>
+
+    <div class="max-w-xs">
+  #{card("Sessions", sessions, subtitle: "(prefix: ctrl-t)")}
+  #{card("Windows", windows)}
+  #{card("Panes", panes)}
+  #{card("Copy Mode", copy)}
+    </div>
+
+    <script>
+      document.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        if (e.key === 'n') window.location.href = '../index.html';
+      });
+    </script>
+  </body>
+  </html>
+HTML
+
+# --- Write files ---
+
+File.write(File.join(DOCS_DIR, "index.html"), nvim_html)
+File.write(File.join(DOCS_DIR, "tmux", "index.html"), tmux_html)
+
+nvim_count = keymaps.length + lsp_keymaps.length + diag_keymaps.length + snacks_keymaps.length + gitsigns_keymaps.length
+tmux_count = tmux_bindings.length
+
+puts "Generated docs/index.html (#{nvim_count} keymaps from config)"
+puts "Generated docs/tmux/index.html (#{tmux_count} bindings from config)"
