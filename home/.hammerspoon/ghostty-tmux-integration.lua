@@ -40,7 +40,7 @@ local function frontmostTmuxInfo()
 end
 
 -- Clear registry entry when a Ghostty window loses focus.
-M.windowFilter = hs.window.filter.new({ "Ghostty", "iTerm2", "Terminal" })
+M.windowFilter = hs.window.filter.new({ "Ghostty", "iTerm2" })
 M.windowFilter:subscribe(hs.window.filter.windowUnfocused, function(win)
   registry[win:id()] = nil
 end)
@@ -93,7 +93,7 @@ local function modsMatch(flags, mods)
   return true
 end
 
-local TERMINAL_APPS = { Ghostty = true, ["iTerm2"] = true, ["Terminal"] = true }
+local TERMINAL_APPS = { Ghostty = true, ["iTerm2"] = true }
 
 M.tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
   local app = hs.application.frontmostApplication()
