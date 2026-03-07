@@ -64,10 +64,29 @@ local bindings = {
   { {"cmd","shift"}, "]", function(i) tmux("select-window", "-t", i.session .. ":+") end },
 
   -- Pane splits (new pane inherits cwd)
+  -- Ghostty native: Cmd+D = Split Right, Shift+Cmd+D = Split Down
+  { {"cmd"},         "d", function(i) tmux("split-window", "-h",       "-t", i.session, CWD, PCWD) end }, -- right
+  { {"cmd","shift"}, "d", function(i) tmux("split-window", "-v",       "-t", i.session, CWD, PCWD) end }, -- down
+  -- vim-style aliases
   { {"cmd"}, "l", function(i) tmux("split-window", "-h",       "-t", i.session, CWD, PCWD) end }, -- right
   { {"cmd"}, "h", function(i) tmux("split-window", "-h", "-b", "-t", i.session, CWD, PCWD) end }, -- left
   { {"cmd"}, "j", function(i) tmux("split-window", "-v",       "-t", i.session, CWD, PCWD) end }, -- down
   { {"cmd"}, "k", function(i) tmux("split-window", "-v", "-b", "-t", i.session, CWD, PCWD) end }, -- up
+
+  -- Pane zoom: Ghostty "Zoom Split" = Shift+Cmd+Enter
+  { {"cmd","shift"}, "return", function(i) tmux("resize-pane", "-Z", "-t", i.tty) end },
+
+  -- Pane navigation: Ghostty "Select Split" = Opt+Cmd+Arrow
+  { {"cmd","alt"}, "right", function(i) tmux("select-pane", "-t", i.session, "-R") end },
+  { {"cmd","alt"}, "left",  function(i) tmux("select-pane", "-t", i.session, "-L") end },
+  { {"cmd","alt"}, "down",  function(i) tmux("select-pane", "-t", i.session, "-D") end },
+  { {"cmd","alt"}, "up",    function(i) tmux("select-pane", "-t", i.session, "-U") end },
+
+  -- Pane resize: Ghostty "Move Divider" = Ctrl+Cmd+Arrow
+  { {"cmd","ctrl"}, "right", function(i) tmux("resize-pane", "-t", i.session, "-R", "5") end },
+  { {"cmd","ctrl"}, "left",  function(i) tmux("resize-pane", "-t", i.session, "-L", "5") end },
+  { {"cmd","ctrl"}, "down",  function(i) tmux("resize-pane", "-t", i.session, "-D", "5") end },
+  { {"cmd","ctrl"}, "up",    function(i) tmux("resize-pane", "-t", i.session, "-U", "5") end },
 }
 
 -- Window selection by index (cmd+1 through cmd+9)
@@ -80,7 +99,8 @@ for n = 1, 9 do
 end
 
 -- Exact modifier matching — bindings won't fire if extra modifiers are held.
-local ALL_MODS = { "cmd", "ctrl", "alt", "shift", "fn" }
+-- fn is excluded: macOS sets fn=true for arrow keys, which would break arrow bindings.
+local ALL_MODS = { "cmd", "ctrl", "alt", "shift" }
 
 local function modsMatch(flags, mods)
   local want = {}
