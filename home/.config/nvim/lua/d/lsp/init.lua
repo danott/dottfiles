@@ -56,6 +56,7 @@ function M.setup()
     'jsonls',
     'lua_ls',
     'tailwindcss',
+    'ts_ls',
     'vimls',
     'yamlls',
   })

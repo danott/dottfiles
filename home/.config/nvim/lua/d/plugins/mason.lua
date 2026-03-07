@@ -18,6 +18,7 @@ return {
         'shellcheck',
         'stylua',
         'tailwindcss-language-server',
+        'typescript-language-server',
         'vim-language-server',
         'yaml-language-server',
       },

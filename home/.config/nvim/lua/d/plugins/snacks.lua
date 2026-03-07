@@ -17,6 +17,7 @@ return {
           focus = 'list',
           auto_close = false,
           jump = { close = false },
+          hidden = true,
         },
         files = { hidden = true },
       },
