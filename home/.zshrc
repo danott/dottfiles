@@ -108,22 +108,3 @@ if command -v try &> /dev/null; then
   eval "$(try init)"
 fi
 
-# Ghostty/tmux/Hammerspoon integration: non-tmux window focus tracking.
-# When a Ghostty window running a plain shell gets focus, write this window's
-# TTY to ghostty-focused-window. tmux writes to BOTH files on its focus events;
-# plain shells write only to ghostty-focused-window. Hammerspoon detects the
-# mismatch between the two files and passes Cmd+keys through instead of
-# routing them to tmux. Only active when NOT inside tmux (-z "$TMUX").
-if [[ -n "$GHOSTTY_RESOURCES_DIR" && -z "$TMUX" ]]; then
-  function _terminal_focus_in() {
-    echo "$TTY" > /tmp/ghostty-focused-window
-  }
-
-  function _enable_focus_reporting() {
-    printf '\033[?1004h'
-  }
-
-  zle -N _terminal_focus_in
-  zle -N zle-line-init _enable_focus_reporting
-  bindkey '\033[I' _terminal_focus_in
-fi

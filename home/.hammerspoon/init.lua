@@ -1,4 +1,5 @@
-require("tmux")
+require("hs.ipc")
+require("ghostty-tmux-integration")
 
 -- Reload config
 hs.hotkey.bind({ "cmd", "shift" }, "r", function()
