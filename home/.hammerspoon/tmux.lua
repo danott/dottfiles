@@ -13,10 +13,6 @@ local TMUX = "/opt/homebrew/bin/tmux"
 -- Add any terminal emulators you use here.
 local TERMINAL_APPS = {
   "Ghostty",
-  "iTerm2",
-  "Terminal",
-  "Alacritty",
-  "kitty",
 }
 
 local function isTerminal()
