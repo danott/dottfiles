@@ -9,6 +9,7 @@ brew "tmux"
 brew "starship"
 brew "autojump"
 brew "direnv"
+brew "doctl"
 
 # Apps
 cask "ghostty"
