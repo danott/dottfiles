@@ -10,7 +10,7 @@
 
 - Use simple, single-purpose tool calls
 - Don't use chained tool calls if it's going to require the user to babysit permissions
-- Prefer ag to grep for fast searching
+- Prefer `rg` to `grep` for fast searching
 
 ## Planning Center
 
