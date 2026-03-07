@@ -2,6 +2,8 @@
 # Install with: brew bundle
 
 # CLI Tools
+brew "bash"
+brew "bash-completion"
 brew "git"
 brew "lazygit"
 brew "neovim"

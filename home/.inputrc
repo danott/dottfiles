@@ -1,0 +1,3 @@
+# Arrow key history search (prefix-based, replaces zsh up-line-or-beginning-search)
+"\e[A": history-search-backward
+"\e[B": history-search-forward
