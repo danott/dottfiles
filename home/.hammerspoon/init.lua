@@ -1,4 +1,4 @@
-require("ghostty")
+require("tmux")
 
 -- Reload config
 hs.hotkey.bind({ "cmd", "shift" }, "r", function()
