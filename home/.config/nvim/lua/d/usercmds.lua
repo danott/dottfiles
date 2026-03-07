@@ -3,5 +3,5 @@ vim.api.nvim_create_user_command('Lg', function()
 end, { desc = 'lazygit' })
 
 vim.api.nvim_create_user_command('LspFormat', function()
-  vim.lsp.buf.format()
-end, { desc = 'lsp: format with language servers' })
+  require('conform').format({ lsp_format = 'fallback', timeout_ms = 10000 })
+end, { desc = 'format with conform, lsp fallback' })

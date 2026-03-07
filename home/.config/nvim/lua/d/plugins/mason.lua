@@ -15,6 +15,7 @@ return {
         'json-lsp',
         'lua-language-server',
         'prettierd',
+        'ruby-lsp',
         'shellcheck',
         'stylua',
         'tailwindcss-language-server',

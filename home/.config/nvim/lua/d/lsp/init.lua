@@ -26,7 +26,9 @@ function M.setup()
       vim.keymap.set('n', 'glw', vim.lsp.buf.workspace_symbol, opts('workspace symbols'))
       vim.keymap.set('n', 'gll', vim.lsp.codelens.run, opts('codelens run'))
       vim.keymap.set('n', 'glR', vim.lsp.buf.rename, opts('rename'))
-      vim.keymap.set('n', 'glf', vim.lsp.buf.format, opts('format'))
+      vim.keymap.set('n', 'glf', function()
+        require('conform').format({ lsp_format = 'fallback', timeout_ms = 10000 })
+      end, opts('format'))
       vim.keymap.set('n', 'glc', vim.lsp.buf.incoming_calls, opts('incoming calls'))
       vim.keymap.set('n', 'glC', vim.lsp.buf.outgoing_calls, opts('outgoing calls'))
       vim.keymap.set('n', 'glh', vim.lsp.buf.typehierarchy, opts('type hierarchy'))
@@ -43,9 +45,6 @@ function M.setup()
         vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
       end
 
-      if client:supports_method('textDocument/codeLens') then
-        vim.lsp.codelens.enable(true, { bufnr = bufnr })
-      end
     end,
   })
 
@@ -55,6 +54,7 @@ function M.setup()
     'html',
     'jsonls',
     'lua_ls',
+    'ruby_lsp',
     'tailwindcss',
     'ts_ls',
     'vimls',

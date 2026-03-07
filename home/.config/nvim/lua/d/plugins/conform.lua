@@ -3,6 +3,7 @@ return {
   opts = {
     formatters_by_ft = {
       lua = { 'stylua' },
+      ruby = { 'standardrb' },
       javascript = { 'prettierd' },
       javascriptreact = { 'prettierd' },
       typescript = { 'prettierd' },
