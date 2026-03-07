@@ -7,13 +7,21 @@ local function inTmux()
   return title:find("▦") ~= nil
 end
 
--- Hotkeys only active when Ghostty is focused
-local ghosttyKeys = {}
+local function isGhostty()
+  local app = hs.application.frontmostApplication()
+  return app and app:name() == "Ghostty"
+end
 
+-- Hotkeys are always enabled; handlers check frontmost app at keypress time.
+-- This avoids enable/disable race conditions during cmd+tab switching.
 local function bind(mods, key, tmuxKey, fallthrough)
   local hk
-  hk = hs.hotkey.new(mods, key, function()
-    if inTmux() then
+  hk = hs.hotkey.bind(mods, key, function()
+    if not isGhostty() then
+      hk:disable()
+      hs.eventtap.keyStroke(mods, key)
+      hs.timer.doAfter(0.05, function() hk:enable() end)
+    elseif inTmux() then
       local app = hs.application.frontmostApplication()
       hs.eventtap.keyStroke({ "ctrl" }, "t", 0, app)
       hs.eventtap.keyStroke({}, tmuxKey, 0, app)
@@ -23,7 +31,6 @@ local function bind(mods, key, tmuxKey, fallthrough)
       hs.timer.doAfter(0.05, function() hk:enable() end)
     end
   end)
-  table.insert(ghosttyKeys, hk)
 end
 
 bind({ "cmd" }, "t", "c", true)
@@ -35,46 +42,25 @@ bind({ "cmd" }, "[", "p", true)
 bind({ "cmd" }, "]", "n", true)
 bind({ "cmd" }, ",", ",", true)
 bind({ "cmd" }, "w", "x", true)
+
 -- cmd+shift+, → rename tmux session (ctrl-t $)
 local renameSession
-renameSession = hs.hotkey.new({ "cmd", "shift" }, ",", function()
-  if inTmux() then
+renameSession = hs.hotkey.bind({ "cmd", "shift" }, ",", function()
+  if not isGhostty() then
+    renameSession:disable()
+    hs.eventtap.keyStroke({ "cmd", "shift" }, ",")
+    hs.timer.doAfter(0.05, function() renameSession:enable() end)
+  elseif inTmux() then
     local app = hs.application.frontmostApplication()
     hs.eventtap.keyStroke({ "ctrl" }, "t", 0, app)
     hs.eventtap.keyStroke({ "shift" }, "4", 0, app)
-  elseif true then
+  else
     renameSession:disable()
     hs.eventtap.keyStroke({ "cmd", "shift" }, ",")
     hs.timer.doAfter(0.05, function() renameSession:enable() end)
   end
 end)
-table.insert(ghosttyKeys, renameSession)
 
 for i = 1, 9 do
   bind({ "cmd" }, tostring(i), tostring(i))
-end
-
-local function enableKeys()
-  for _, hk in ipairs(ghosttyKeys) do hk:enable() end
-end
-
-local function disableKeys()
-  for _, hk in ipairs(ghosttyKeys) do hk:disable() end
-end
-
--- Activate on Ghostty focus, deactivate on anything else
-local watcher = hs.application.watcher.new(function(name, event)
-  if name == "Ghostty" then
-    if event == hs.application.watcher.activated then
-      enableKeys()
-    elseif event == hs.application.watcher.deactivated then
-      disableKeys()
-    end
-  end
-end)
-watcher:start()
-
--- Enable immediately if Ghostty is already focused
-if hs.application.frontmostApplication():name() == "Ghostty" then
-  enableKeys()
 end
