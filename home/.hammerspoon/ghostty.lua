@@ -1,66 +1,87 @@
--- Check if the focused window title contains the tmux marker (▦)
--- Customize the title format in ~/.tmux.conf set-titles-string, just keep the ▦
-local function inTmux()
-  local win = hs.window.focusedWindow()
-  if not win then return false end
-  local title = win:title() or ""
-  return title:find("▦") ~= nil
+-- tmux.lua
+-- App-scoped tmux hotkeys for terminal emulators.
+-- Require from init.lua: require("tmux")
+
+local M = {}
+
+-- Add any terminal emulators you use here.
+local TERMINAL_APPS = {
+  "Ghostty",
+  "iTerm2",
+  "Terminal",
+  "Alacritty",
+  "kitty",
+}
+
+local TMUX = "/opt/homebrew/bin/tmux"
+
+-- Run a tmux command asynchronously, targeting the most recently active client.
+local function tmux(...)
+  hs.task.new(TMUX, nil, {...}):start()
 end
 
-local function isGhostty()
-  local app = hs.application.frontmostApplication()
-  return app and app:name() == "Ghostty"
+-- Build a modal so keys are only intercepted when a terminal is focused.
+-- Unbound keys pass through normally.
+local modal = hs.hotkey.modal.new()
+
+-- Window management
+modal:bind({"cmd"}, "t", function() tmux("new-window") end)
+modal:bind({"cmd"}, "w", function() tmux("kill-pane") end)
+
+modal:bind({"cmd"}, ",", function()
+  tmux("command-prompt", "-I", "#W", "rename-window '%%'")
+end)
+
+modal:bind({"cmd", "shift"}, ",", function()
+  tmux("command-prompt", "-I", "#S", "rename-session '%%'")
+end)
+
+-- Window navigation
+modal:bind({"cmd"}, "[", function() tmux("select-window", "-t", ":-") end)
+modal:bind({"cmd"}, "]", function() tmux("select-window", "-t", ":+") end)
+
+-- Pane splits
+-- -h  = horizontal split (new pane to the right)
+-- -hb = horizontal split before (new pane to the left)
+-- -v  = vertical split (new pane below)
+-- -vb = vertical split before (new pane above)
+modal:bind({"cmd"}, "l", function() tmux("split-window", "-h")        end)
+modal:bind({"cmd"}, "h", function() tmux("split-window", "-h", "-b")  end)
+modal:bind({"cmd"}, "j", function() tmux("split-window", "-v")        end)
+modal:bind({"cmd"}, "k", function() tmux("split-window", "-v", "-b")  end)
+
+-- Window selection by index (cmd+1 through cmd+9)
+for i = 1, 9 do
+  local idx = tostring(i)
+  modal:bind({"cmd"}, idx, function() tmux("select-window", "-t", ":" .. idx) end)
 end
 
--- Hotkeys are always enabled; handlers check frontmost app at keypress time.
--- This avoids enable/disable race conditions during cmd+tab switching.
-local function bind(mods, key, tmuxKey, fallthrough)
-  local hk
-  hk = hs.hotkey.bind(mods, key, function()
-    if not isGhostty() then
-      hk:disable()
-      hs.eventtap.keyStroke(mods, key)
-      hs.timer.doAfter(0.05, function() hk:enable() end)
-    elseif inTmux() then
-      local app = hs.application.frontmostApplication()
-      hs.eventtap.keyStroke({ "ctrl" }, "t", 0, app)
-      hs.eventtap.keyStroke({}, tmuxKey, 0, app)
-    elseif fallthrough then
-      hk:disable()
-      hs.eventtap.keyStroke(mods, key)
-      hs.timer.doAfter(0.05, function() hk:enable() end)
-    end
-  end)
+-- Helpers
+
+local function isTerminal(appName)
+  for _, name in ipairs(TERMINAL_APPS) do
+    if appName == name then return true end
+  end
+  return false
 end
 
-bind({ "cmd" }, "t", "c", true)
-bind({ "cmd" }, "h", "h", true)
-bind({ "cmd" }, "j", "j", true)
-bind({ "cmd" }, "k", "k", true)
-bind({ "cmd" }, "l", "l", true)
-bind({ "cmd" }, "[", "p", true)
-bind({ "cmd" }, "]", "n", true)
-bind({ "cmd" }, ",", ",", true)
-bind({ "cmd" }, "w", "x", true)
+-- Activate modal when a terminal gains focus; deactivate when it loses it.
+M.watcher = hs.application.watcher.new(function(name, event, _app)
+  if not isTerminal(name) then return end
 
--- cmd+shift+, → rename tmux session (ctrl-t $)
-local renameSession
-renameSession = hs.hotkey.bind({ "cmd", "shift" }, ",", function()
-  if not isGhostty() then
-    renameSession:disable()
-    hs.eventtap.keyStroke({ "cmd", "shift" }, ",")
-    hs.timer.doAfter(0.05, function() renameSession:enable() end)
-  elseif inTmux() then
-    local app = hs.application.frontmostApplication()
-    hs.eventtap.keyStroke({ "ctrl" }, "t", 0, app)
-    hs.eventtap.keyStroke({ "shift" }, "4", 0, app)
-  else
-    renameSession:disable()
-    hs.eventtap.keyStroke({ "cmd", "shift" }, ",")
-    hs.timer.doAfter(0.05, function() renameSession:enable() end)
+  if event == hs.application.watcher.activated then
+    modal:enter()
+  elseif event == hs.application.watcher.deactivated then
+    modal:exit()
   end
 end)
 
-for i = 1, 9 do
-  bind({ "cmd" }, tostring(i), tostring(i))
+M.watcher:start()
+
+-- Handle the case where a terminal is already focused when Hammerspoon reloads.
+local front = hs.application.frontmostApplication()
+if front and isTerminal(front:name()) then
+  modal:enter()
 end
+
+return M
