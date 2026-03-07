@@ -1,5 +1,4 @@
 require("ghostty")
-require("netnewswire")
 
 -- Reload config
 hs.hotkey.bind({ "cmd", "shift" }, "r", function()
