@@ -34,11 +34,15 @@ local function tmux(...)
   hs.task.new(TMUX, nil, {...}):start()
 end
 
+local CWD = "-c"
+local PCWD = "#{pane_current_path}"
+
 -- Bindings table: { mods, key, action }
 -- mods must match exactly — no extra modifiers.
 local bindings = {
   -- Window management
-  { {"cmd"},         "t", function() tmux("new-window") end },
+  { {"cmd"},         "n", function() end }, -- prevent new OS window when tmux is running
+  { {"cmd"},         "t", function() tmux("new-window", CWD, PCWD) end },
   { {"cmd"},         "w", function() tmux("kill-pane") end },
   { {"cmd"},         ",", function() tmux("command-prompt", "-I", "#W", "rename-window '%%'") end },
   { {"cmd","shift"}, ",", function() tmux("command-prompt", "-I", "#S", "rename-session '%%'") end },
@@ -48,10 +52,10 @@ local bindings = {
   { {"cmd"}, "]", function() tmux("select-window", "-t", ":+") end },
 
   -- Pane splits
-  { {"cmd"}, "l", function() tmux("split-window", "-h")       end }, -- right
-  { {"cmd"}, "h", function() tmux("split-window", "-h", "-b") end }, -- left
-  { {"cmd"}, "j", function() tmux("split-window", "-v")       end }, -- down
-  { {"cmd"}, "k", function() tmux("split-window", "-v", "-b") end }, -- up
+  { {"cmd"}, "l", function() tmux("split-window", "-h",       CWD, PCWD) end }, -- right
+  { {"cmd"}, "h", function() tmux("split-window", "-h", "-b", CWD, PCWD) end }, -- left
+  { {"cmd"}, "j", function() tmux("split-window", "-v",       CWD, PCWD) end }, -- down
+  { {"cmd"}, "k", function() tmux("split-window", "-v", "-b", CWD, PCWD) end }, -- up
 }
 
 -- Window selection by index (cmd+1 through cmd+9)
