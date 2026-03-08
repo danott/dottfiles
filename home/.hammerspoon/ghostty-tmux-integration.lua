@@ -31,6 +31,17 @@ function M.registerFocus(tty, session)
   registry[win:id()] = { tty = tty, session = session }
 end
 
+-- Called by the tmux client-detached hook via:
+--   hs -c "require('ghostty-tmux-integration').unregisterFocus('/dev/ttys003')"
+function M.unregisterFocus(tty)
+  for id, info in pairs(registry) do
+    if info.tty == tty then
+      registry[id] = nil
+      return
+    end
+  end
+end
+
 -- Returns { tty, session } for the focused window if it has a tmux client,
 -- otherwise nil.
 local function frontmostTmuxInfo()
@@ -125,9 +136,19 @@ M.tap = hs.eventtap.new({ hs.eventtap.event.types.keyDown }, function(event)
   local flags = event:getFlags()
   local char  = hs.keycodes.map[event:getKeyCode()]
 
+  local win = hs.window.focusedWindow()
+
   for _, binding in ipairs(bindings) do
     local mods, key, action = binding[1], binding[2], binding[3]
     if char == key and modsMatch(flags, mods) then
+      -- Validate the session still exists before consuming the event.
+      -- When tmux exits, the server shuts down before hooks can unregister,
+      -- so we verify here rather than relying solely on client-detached.
+      local _, ok = hs.execute(TMUX .. " has-session -t " .. info.session .. " 2>/dev/null")
+      if not ok then
+        registry[win:id()] = nil
+        return false  -- pass through (e.g. cmd+w closes the Ghostty window)
+      end
       action(info)
       return true  -- consumed
     end
