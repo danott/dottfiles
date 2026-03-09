@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+
+SESSION="tend"
+
+if tmux has-session -t "$SESSION" 2>/dev/null; then
+  if [ -n "$TMUX" ]; then
+    tmux switch-client -t "$SESSION"
+  else
+    tmux attach-session -t "$SESSION"
+  fi
+  exit 0
+fi
+
+DAILY="$(tend --touch --print daily)"
+SCRATCH="$(tend --touch --print scratch)"
+INBOX="$(tend --print inbox)"
+
+tmux new-session -d -s "$SESSION" -n "daily" -c "$INBOX"
+tmux send-keys -t "$SESSION:daily" "$EDITOR $DAILY" Enter
+
+tmux new-window -t "$SESSION" -n "scratch" -c "$INBOX"
+tmux send-keys -t "$SESSION:scratch" "$EDITOR $SCRATCH" Enter
+
+tmux new-window -t "$SESSION" -n "inbox" -c "$INBOX"
+
+tmux select-window -t "$SESSION:daily"
+
+if [ -n "$TMUX" ]; then
+  tmux switch-client -t "$SESSION"
+else
+  tmux attach-session -t "$SESSION"
+fi
