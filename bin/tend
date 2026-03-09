@@ -23,7 +23,7 @@ when "journal"
 when "scratch"
   File.join(INBOX, "#{date}-scratch.md")
 when "capture"
-  timestamp = today.strftime("%Y-%m-%d-capture-%H%M%S")
+  timestamp = today.strftime("%Y-%m-%dT%Hh%Mm%Ss")
   File.join(INBOX, "#{timestamp}.md")
 when "weekly"
   File.join(DOCS, "Now", week)
