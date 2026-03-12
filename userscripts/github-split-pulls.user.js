@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GitHub Split Pulls Tab
 // @namespace    https://danott.website
-// @version      0.4.0
+// @version      0.5.0
 // @description  Replaces the "Pull requests" tab on GitHub repos with "Drafts" and "In Review" tabs
 // @author       Dan Ott
 // @match        https://github.com/*
@@ -11,6 +11,28 @@
 
 (function () {
   "use strict";
+
+  async function fetchCount(href) {
+    const resp = await fetch(href);
+    const html = await resp.text();
+    const match = html.match(/(\d+)\s+Open/);
+    return match ? match[1] : null;
+  }
+
+  async function updateCounter(item, href) {
+    const count = await fetchCount(href);
+    const counter = item.querySelector("[data-component='counter']");
+    if (!counter) return;
+    if (!count || count === "0") {
+      counter.remove();
+      return;
+    }
+    const label = counter.querySelector("[data-variant]");
+    if (label) label.textContent = count;
+    const hidden = counter.querySelector("[class*='VisuallyHidden']");
+    if (hidden) hidden.textContent = `\u00a0(${count})`;
+    counter.style.display = "";
+  }
 
   function splitPullsTab() {
     const repoBase = window.location.pathname.match(/^\/([^/]+\/[^/]+)/)?.[1];
@@ -35,7 +57,8 @@
       link.removeAttribute("data-hotkey");
       link.setAttribute("data-split-tab", "true");
       link.removeAttribute("aria-current");
-      item.querySelectorAll("[data-component='counter']").forEach((el) => el.remove());
+      const counter = item.querySelector("[data-component='counter']");
+      if (counter) counter.style.display = "none";
     }
 
     draftsItem.querySelector("a").href = `/${repoBase}/pulls?q=is%3Apr+is%3Aopen+draft%3Atrue`;
@@ -57,6 +80,11 @@
     setText(reviewItem, "In Review");
 
     pullsItem.replaceWith(draftsItem, reviewItem);
+
+    for (const item of [draftsItem, reviewItem]) {
+      const link = item.querySelector("a");
+      updateCounter(item, link.href);
+    }
   }
 
   function highlightActiveTab() {
