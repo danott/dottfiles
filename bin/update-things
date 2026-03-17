@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Usage: update-things <things-id> <param=value> [param=value ...]
+# Example: update-things ABC123 when=2026-03-16
+# Example: update-things ABC123 append-notes="some text"
+# Example: update-things ABC123 completed=true
+
+require "uri"
+
+AUTH_TOKEN_PATH = File.expand_path("~/.config/things/auth-token")
+
+unless File.exist?(AUTH_TOKEN_PATH)
+  $stderr.puts "Missing Things auth token at #{AUTH_TOKEN_PATH}"
+  exit 1
+end
+
+auth_token = File.read(AUTH_TOKEN_PATH).strip
+things_id = ARGV.shift
+
+if things_id.nil? || ARGV.empty?
+  $stderr.puts "Usage: update-things <things-id> <param=value> [param=value ...]"
+  exit 1
+end
+
+params = {"id" => things_id, "auth-token" => auth_token}
+ARGV.each do |arg|
+  key, value = arg.split("=", 2)
+  value = (value || "").gsub('\n', "\n")
+  params[key] = value
+end
+
+query = params.map { |k, v| "#{k}=#{URI.encode_www_form_component(v).gsub("+", "%20")}" }.join("&")
+url = "things:///update?#{query}"
+system("open", "-g", url)
+puts "Updated Things task #{things_id}"
