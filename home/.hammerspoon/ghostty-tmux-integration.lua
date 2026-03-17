@@ -90,9 +90,6 @@ local bindings = {
   -- Window management
   { {"cmd"},         "t", function(s, m, k) tmux(s, m, k, "new-window",   "-t", s .. ":", CWD, PCWD) end },
   { {"cmd"},         "w", function(s, m, k) tmux(s, m, k, "kill-pane",    "-t", s) end },
-  { {"cmd"},         ",", function(s, m, k) tmux(s, m, k, "command-prompt", "-t", s, "-I", "#W", "rename-window '%%'") end },
-  { {"cmd","shift"}, ",", function(s, m, k) tmux(s, m, k, "command-prompt", "-t", s, "-I", "#S", "rename-session '%%'") end },
-
   -- Window navigation
   { {"cmd","shift"}, "[", function(s, m, k) tmux(s, m, k, "select-window", "-t", s .. ":-") end },
   { {"cmd","shift"}, "]", function(s, m, k) tmux(s, m, k, "select-window", "-t", s .. ":+") end },
