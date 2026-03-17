@@ -1,5 +1,5 @@
 ---
-description: Manage the linked Things task (reschedule, complete, tag, etc.)
+description: Manage or update the linked Things task (reschedule, complete, summarize, etc.)
 ---
 
 First, find the Things ID by looking for `Things ID:` in the workspace's CLAUDE.md file.
@@ -21,5 +21,7 @@ update-things <things-id> <param>=<value> [<param>=<value> ...]
 
 `when` also accepts: today, tomorrow, evening, someday.
 Convert natural language dates to YYYY-MM-DD. Use `date +%Y-%m-%d` for today.
+
+When appending notes (e.g. summarizing a conversation), write like you're leaving a note for a coworker. A few useful sentences — no IDs, metadata, or JSON.
 
 The user said: $ARGUMENTS
