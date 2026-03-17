@@ -1,0 +1,407 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# yap - disposable workspaces for chatting with claude
+#
+# Each yap is a dated directory under ~/Documents/Now with its own CLAUDE.md,
+# .envrc (for CLAUDE_CONFIG_DIR via direnv), and optional settings. Old yaps
+# can be archived to ~/Documents/Logbook.
+#
+# Interactive usage:
+#   yap              # fzf picker (ctrl-n to create, ctrl-d delete, ctrl-a archive)
+#   yap <query>      # fzf picker pre-filtered
+#   yap -n NAME      # create a new yap
+#   yap -s URL       # create a yap seeded with a Slack thread
+#   yap ls           # list yaps
+#
+# Things integration (invoked from macOS Shortcuts):
+#   yap --things '{"id":"ABC","title":"..."}'
+#   echo '...' | yap --things
+#
+#   Finds or creates a workspace for the Things task, writes CLAUDE.md with
+#   the task context, and opens it in a tmux pane via tend-summon.
+
+require "fileutils"
+require "date"
+require "optparse"
+require "open3"
+require "json"
+require "shellwords"
+
+CHATS_DIR = File.expand_path("~/Documents/Now")
+ARCHIVE_DIR = File.expand_path("~/Documents/Logbook")
+CONFIG_DIRS = File.expand_path("~/.claude_config_dirs")
+
+def main
+  FileUtils.mkdir_p(CHATS_DIR)
+
+  name = nil
+  slack_url = nil
+  things_json = nil
+
+  parser = OptionParser.new do |opts|
+    opts.banner = "Usage: yap [query] [-n NAME] [-s SLACK_URL] [--things JSON]"
+    opts.on("-n", "--new NAME", "Create a new yap workspace") { |v| name = v }
+    opts.on("-s", "--slack URL", "Slack thread URL to pull in as context") { |v| slack_url = v }
+    opts.on("--things [JSON]", "Open a yap for a Things task (reads stdin if no value)") { |v| things_json = v || :stdin }
+  end
+
+  parser.order!(ARGV)
+  subcommand = ARGV.shift
+  query = ARGV.join(" ")
+
+  case subcommand
+  when "ls"
+    list_chats
+  when "ls-entries"
+    puts fzf_entries
+  when nil
+    if things_json
+      open_things_task(things_json)
+    elsif name
+      create_chat(name, slack_url: slack_url)
+    elsif slack_url
+      $stderr.print "Name this yap: "
+      n = $stdin.gets&.strip
+      return if n.nil? || n.empty?
+      create_chat(n, slack_url: slack_url)
+    else
+      pick
+    end
+  else
+    pick(subcommand)
+  end
+end
+
+def create_chat(name, slack_url: nil)
+  dir = "#{Date.today}-#{name.tr(" ", "-")}"
+  workspace = File.join(CHATS_DIR, dir)
+  FileUtils.mkdir_p(workspace)
+  write_default_permissions(workspace)
+
+  if slack_url
+    write_slack_context(workspace, slack_url)
+    save_config_dir_to(workspace, File.join(CONFIG_DIRS, "pco-team"))
+  end
+
+  Dir.chdir(workspace)
+  enter_workspace(workspace)
+end
+
+def pick(initial_query = "")
+  result = pick_workspace(initial_query)
+  return if result.nil?
+
+  if result.is_a?(Array) && result.first == :new
+    create_chat(result.last)
+    return
+  end
+
+  Dir.chdir(result)
+  enter_workspace(result)
+end
+
+def pick_workspace(initial_query = "")
+  unless system("command -v fzf > /dev/null 2>&1")
+    $stderr.puts "Install fzf for the chat picker: brew install fzf"
+    exit 1
+  end
+
+  reload_cmd = "#{__FILE__} ls-entries"
+  chats_dir = CHATS_DIR.shellescape
+  archive_dir = ARCHIVE_DIR.shellescape
+
+  fzf_args = [
+    "fzf", "--height=~20", "--prompt=yap>",
+    "--with-nth=1", "--delimiter=\t", "--no-sort",
+    "--ansi",
+    "--header=ctrl-d:delete  ctrl-r:rename  ctrl-a:archive  ctrl-n:new",
+    "--expect=ctrl-n",
+    "--print-query",
+    "--bind", "ctrl-d:execute-silent(rm -rf #{chats_dir}/{-1})+reload(#{reload_cmd})",
+    "--bind", "ctrl-r:execute(printf 'Rename to: ' >&2; read name; prefix=$(echo {-1} | grep -o '^[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}'); mv #{chats_dir}/{-1} #{chats_dir}/$prefix-$name && direnv allow #{chats_dir}/$prefix-$name/.envrc 2>/dev/null)+reload(#{reload_cmd})",
+    "--bind", "ctrl-a:execute-silent(mkdir -p #{archive_dir} && mv #{chats_dir}/{-1} #{archive_dir}/{-1})+reload(#{reload_cmd})",
+  ]
+  fzf_args += ["--query", initial_query] unless initial_query.empty?
+
+  output, status = Open3.capture2(*fzf_args, stdin_data: fzf_entries)
+  return nil unless status.success?
+
+  lines = output.lines.map(&:strip)
+  query, key, selection = lines[0], lines[1], lines[2]
+
+  if key == "ctrl-n" && query && !query.empty?
+    return :new, query
+  end
+
+  return nil if selection.nil? || selection.empty?
+
+  dir_name = selection.split("\t").last
+  return nil unless dir_name && File.directory?(File.join(CHATS_DIR, dir_name))
+
+  File.join(CHATS_DIR, dir_name)
+end
+
+def fzf_entries
+  chat_dirs.map { |d| format_entry(d) }.join("\n")
+end
+
+def chat_dirs
+  Dir.glob(File.join(CHATS_DIR, "*/"))
+    .select { |d| File.directory?(d) }
+    .sort_by { |d| -last_active(d).to_f }
+end
+
+def format_entry(dir)
+  name = File.basename(dir)
+  age = relative_time(last_active(dir))
+  display = "#{name}  \e[2m#{age}\e[0m"
+  "#{display}\t#{name}"
+end
+
+def last_active(dir)
+  files = Dir.glob(File.join(dir, "**", "*"))
+  return File.mtime(dir) if files.empty?
+  files.map { |f| File.mtime(f) }.max
+end
+
+def relative_time(time)
+  seconds = Time.now - time
+  case seconds
+  when 0..59 then "now"
+  when 60..3599 then "#{(seconds / 60).to_i}m"
+  when 3600..86399 then "#{(seconds / 3600).to_i}h"
+  when 86400..604799 then "#{(seconds / 86400).to_i}d"
+  when 604800..2_592_000 then "#{(seconds / 604800).to_i}w"
+  else "#{(seconds / 2_592_000).to_i}mo"
+  end
+end
+
+def list_chats
+  chat_dirs.each do |d|
+    age = relative_time(File.mtime(d))
+    puts "#{File.basename(d)}  #{age}"
+  end
+end
+
+# --- Claude config ---
+
+def enter_workspace(workspace)
+  ensure_envrc(workspace)
+  exec(ENV["SHELL"] || "bash")
+end
+
+def ensure_envrc(workspace)
+  Dir.chdir(workspace) { system("claudenv") }
+end
+
+def save_config_dir_to(workspace, dir)
+  envrc = File.join(workspace, ".envrc")
+  File.write(envrc, "export CLAUDE_CONFIG_DIR=#{dir.shellescape}\n")
+  system("direnv", "allow", envrc)
+end
+
+# --- Things ---
+
+def open_things_task(json_input)
+  json_string = json_input == :stdin ? $stdin.read : json_input
+  task = JSON.parse(json_string)
+  task = task.transform_keys(&:downcase)
+  title = task.fetch("title")
+  things_id = task.fetch("id")
+  notes = task["notes"]
+
+  # Find existing workspace or create new one
+  workspace = find_things_workspace(things_id)
+
+  if workspace.nil?
+    slug = title.downcase.gsub(/[^a-z0-9]+/, "-").gsub(/^-|-$/, "")
+    dir = "#{Date.today}-#{slug}"
+    workspace = File.join(CHATS_DIR, dir)
+    FileUtils.mkdir_p(workspace)
+    has_slack = notes&.lines&.first&.strip&.match?(%r{^https://.*\.slack\.com/archives/})
+    if has_slack
+      save_config_dir_to(workspace, File.join(CONFIG_DIRS, "pco-team"))
+    end
+    write_default_permissions(workspace)
+  end
+
+  tag_things_task(things_id)
+
+  # Append snapshot
+  File.open(File.join(workspace, "things.jsonl"), "a") { |f| f.puts(json_string.strip) }
+
+  # Regenerate CLAUDE.md from latest state
+  write_things_claude_md(workspace, title: title, things_id: things_id, notes: notes)
+
+  dir_name = File.basename(workspace)
+  tend_summon = File.join(File.dirname(__FILE__), "tend-summon")
+  system(tend_summon, "--name", "yap-#{dir_name}", "cd #{workspace.shellescape} && claudenv")
+end
+
+def write_things_claude_md(workspace, title:, things_id:, notes:)
+  slack_section = ""
+  if notes
+    first_line = notes.lines.first&.strip
+    if first_line&.match?(%r{^https://.*\.slack\.com/archives/})
+      slack_section = "\n#{slack_context_lines(first_line)}\n"
+    end
+  end
+
+  File.write(File.join(workspace, "CLAUDE.md"), <<~MD)
+    # Things task: #{title}
+
+    Things ID: #{things_id}
+
+    The `things.jsonl` file contains snapshots of this task (last line is latest).
+    #{slack_section}
+  MD
+end
+
+
+
+def find_things_workspace(things_id)
+  chat_dirs.find do |dir|
+    claude_md = File.join(dir, "CLAUDE.md")
+    next false unless File.exist?(claude_md)
+    File.read(claude_md).include?("Things ID: #{things_id}")
+  end
+end
+
+def tag_things_task(things_id)
+  update_things = File.join(File.dirname(__FILE__), "update-things")
+  system(update_things, things_id, "add-tags=Yap")
+end
+
+# --- Settings ---
+
+DEFAULT_PERMISSIONS = [
+  # Bash
+  "Bash(update-things:*)",
+
+  # Slack
+  "mcp__claude_ai_Slack__slack_read_thread",
+  "mcp__claude_ai_Slack__slack_read_channel",
+  "mcp__claude_ai_Slack__slack_read_user_profile",
+  "mcp__claude_ai_Slack__slack_read_canvas",
+  "mcp__claude_ai_Slack__slack_search_public",
+  "mcp__claude_ai_Slack__slack_search_public_and_private",
+  "mcp__claude_ai_Slack__slack_search_channels",
+  "mcp__claude_ai_Slack__slack_search_users",
+
+  # Notion
+  "mcp__claude_ai_Notion__notion-fetch",
+  "mcp__claude_ai_Notion__notion-search",
+  "mcp__claude_ai_Notion__notion-get-comments",
+  "mcp__claude_ai_Notion__notion-get-users",
+  "mcp__claude_ai_Notion__notion-get-teams",
+  "mcp__claude_ai_Notion__notion-query-data-sources",
+  "mcp__claude_ai_Notion__notion-query-meeting-notes",
+
+  # Asana
+  "mcp__claude_ai_Asana_2__asana_list_workspaces",
+  "mcp__claude_ai_Asana_2__asana_get_allocations",
+  "mcp__claude_ai_Asana_2__asana_get_attachment",
+  "mcp__claude_ai_Asana_2__asana_get_attachments_for_object",
+  "mcp__claude_ai_Asana_2__asana_get_goal",
+  "mcp__claude_ai_Asana_2__asana_get_goals",
+  "mcp__claude_ai_Asana_2__asana_get_parent_goals_for_goal",
+  "mcp__claude_ai_Asana_2__asana_get_items_for_portfolio",
+  "mcp__claude_ai_Asana_2__asana_get_portfolio",
+  "mcp__claude_ai_Asana_2__asana_get_portfolios",
+  "mcp__claude_ai_Asana_2__asana_get_project",
+  "mcp__claude_ai_Asana_2__asana_get_projects",
+  "mcp__claude_ai_Asana_2__asana_get_projects_for_team",
+  "mcp__claude_ai_Asana_2__asana_get_projects_for_workspace",
+  "mcp__claude_ai_Asana_2__asana_get_project_sections",
+  "mcp__claude_ai_Asana_2__asana_get_project_status",
+  "mcp__claude_ai_Asana_2__asana_get_project_statuses",
+  "mcp__claude_ai_Asana_2__asana_get_project_task_counts",
+  "mcp__claude_ai_Asana_2__asana_get_stories_for_task",
+  "mcp__claude_ai_Asana_2__asana_get_task",
+  "mcp__claude_ai_Asana_2__asana_get_tasks",
+  "mcp__claude_ai_Asana_2__asana_get_team_users",
+  "mcp__claude_ai_Asana_2__asana_get_teams_for_user",
+  "mcp__claude_ai_Asana_2__asana_get_teams_for_workspace",
+  "mcp__claude_ai_Asana_2__asana_get_time_period",
+  "mcp__claude_ai_Asana_2__asana_get_time_periods",
+  "mcp__claude_ai_Asana_2__asana_get_user",
+  "mcp__claude_ai_Asana_2__asana_get_workspace_users",
+  "mcp__claude_ai_Asana_2__asana_search_tasks",
+  "mcp__claude_ai_Asana_2__asana_typeahead_search",
+
+  # Gmail
+  "mcp__claude_ai_Gmail__gmail_search_messages",
+  "mcp__claude_ai_Gmail__gmail_read_message",
+  "mcp__claude_ai_Gmail__gmail_read_thread",
+  "mcp__claude_ai_Gmail__gmail_get_profile",
+  "mcp__claude_ai_Gmail__gmail_list_labels",
+  "mcp__claude_ai_Gmail__gmail_list_drafts",
+
+  # Google Calendar
+  "mcp__claude_ai_Google_Calendar__gcal_list_events",
+  "mcp__claude_ai_Google_Calendar__gcal_get_event",
+  "mcp__claude_ai_Google_Calendar__gcal_list_calendars",
+  "mcp__claude_ai_Google_Calendar__gcal_find_my_free_time",
+  "mcp__claude_ai_Google_Calendar__gcal_find_meeting_times",
+].freeze
+
+
+def write_default_permissions(workspace)
+  settings_dir = File.join(workspace, ".claude")
+  FileUtils.mkdir_p(settings_dir)
+  settings_file = File.join(settings_dir, "settings.json")
+
+  settings = File.exist?(settings_file) ? JSON.parse(File.read(settings_file)) : {}
+  settings["permissions"] ||= {}
+  settings["permissions"]["allow"] = DEFAULT_PERMISSIONS.dup
+
+  File.write(settings_file, JSON.pretty_generate(settings) + "\n")
+end
+
+# --- Slack ---
+
+def slack_context_lines(url)
+  match = url.match(%r{/archives/([^/]+)/p(\d+)})
+  return nil unless match
+
+  channel_id = match[1]
+  raw_ts = match[2]
+  message_ts = "#{raw_ts[0..-7]}.#{raw_ts[-6..]}"
+
+  <<~MD.strip
+    ## Slack context
+
+    Read this Slack thread using slack_read_thread (channel_id: #{channel_id}, message_ts: #{message_ts}).
+    Source: #{url}
+
+    ## How to work with me
+
+    You are a strategic thinking partner. Your job is to make me sharper, not to do my thinking for me.
+
+    After reading the thread:
+    1. Give me a concise summary of what's being discussed and what's at stake
+    2. Tell me what you think my options are — including ones I might not like
+    3. Ask me what I think before offering your opinion
+
+    As we talk:
+    - Push back when my reasoning is sloppy or self-serving
+    - Ask "what would have to be true for you to change your mind?"
+    - Name the tradeoffs I'm glossing over
+    - If I'm avoiding something, say so
+    - Don't let me settle for a comfortable answer when a better one exists
+
+    Keep responses short. I'm here to think, not to read.
+  MD
+end
+
+def write_slack_context(workspace, url)
+  lines = slack_context_lines(url)
+  return unless lines
+
+  File.write(File.join(workspace, "CLAUDE.md"), <<~MD)
+    #{lines}
+  MD
+end
+
+main
