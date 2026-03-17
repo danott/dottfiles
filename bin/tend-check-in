@@ -1,0 +1,119 @@
+#!/usr/bin/env ruby
+
+require "fileutils"
+require "tmpdir"
+
+def daily_path
+  path = `tend --touch --print daily`.chomp
+  abort "tend-check-in: could not determine daily note path" if path.empty?
+  path
+end
+
+def record(message, path)
+  timestamp = Time.now.strftime("%H:%M")
+  entry = "- #{timestamp} #{message}\n"
+  File.open(path, "a") { |f| f.write(entry) }
+  entry.strip
+end
+
+def nag
+  bundle_id = ENV["__CFBundleIdentifier"] || "com.mitchellh.ghostty"
+  system(
+    "terminal-notifier",
+    "-title", "tend",
+    "-message", "Time to check in",
+    "-execute",
+    "osascript" \
+      " -e 'tell application \"System Events\"'" \
+      " -e 'set frontApp to name of first application process whose bundle identifier is \"#{bundle_id}\"'" \
+      " -e 'tell application process frontApp'" \
+      " -e 'perform action \"AXRaise\" of (first window whose title contains \"tend\")'" \
+      " -e 'set frontmost to true'" \
+      " -e 'end tell'" \
+      " -e 'end tell'"
+  )
+  print "\a"
+  $stdout.flush
+end
+
+def elapsed_str(since)
+  s = Time.now - since
+  return "just now" if s < 60
+  "#{(s / 60).to_i}m ago"
+end
+
+NAG_AFTER  = 3600  # nag if no check-in for 1 hour
+NAG_REPEAT = 900   # re-nag every 15 min after that
+
+def loop_mode
+  path = daily_path
+  last_check_in = Time.now
+  last_nag = nil
+
+  nag_thread = Thread.new do
+    loop do
+      sleep 60
+      elapsed = Time.now - last_check_in
+      nag_due = last_nag.nil? || (Time.now - last_nag) >= NAG_REPEAT
+      if elapsed >= NAG_AFTER && nag_due
+        nag
+        last_nag = Time.now
+      end
+    end
+  end
+
+  trap("INT") do
+    puts "\nDone checking in. 👋"
+    exit
+  end
+
+  puts "tend check-in loop — Ctrl+C or 'q' to exit."
+  puts
+
+  loop do
+    print "[#{elapsed_str(last_check_in)}] > "
+    $stdout.flush
+
+    line = $stdin.gets
+    break if line.nil?
+
+    message = line.strip
+    next if message.empty?
+    break if %w[q quit exit].include?(message)
+
+    puts record(message, path)
+    last_check_in = Time.now
+    last_nag = nil
+  end
+ensure
+  nag_thread&.kill
+end
+
+# Parse flags
+loop_flag = ARGV.delete("--loop")
+message = nil
+args = ARGV.dup
+if (idx = args.index("-m"))
+  args.delete_at(idx)
+  message = args.delete_at(idx)
+end
+
+if loop_flag
+  loop_mode
+  exit
+end
+
+# Single check-in mode
+path = daily_path
+
+if message.nil?
+  tmpfile = File.join(Dir.tmpdir, "tend-check-in-#{$$}.md")
+  File.write(tmpfile, "\n# Write your check-in above. Lines starting with # are ignored.\n# An empty message aborts.\n")
+  system(ENV.fetch("EDITOR", "vim"), tmpfile)
+  content = File.readlines(tmpfile).reject { |l| l.strip.start_with?("#") }
+  message = content.map(&:strip).reject(&:empty?).first
+  File.delete(tmpfile)
+  abort "Aborted: empty check-in message." if message.nil? || message.empty?
+end
+
+puts record(message, path)
