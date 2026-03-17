@@ -1,0 +1,77 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Find or create a named window in the tend tmux session, run a command
+# in it, and focus the terminal.
+#
+# Usage: tend-summon --name WINDOW_NAME <command>
+
+require "json"
+require "open3"
+require "optparse"
+
+TMUX = "/opt/homebrew/bin/tmux"
+HS = "/opt/homebrew/bin/hs"
+SESSION = "tend"
+
+def main
+  window_name = nil
+
+  parser = OptionParser.new do |opts|
+    opts.on("--name NAME", "tmux window name") { |v| window_name = v }
+  end
+  parser.order!(ARGV)
+
+  cmd = ARGV.join(" ")
+  if cmd.empty? || window_name.nil?
+    $stderr.puts "Usage: tend-summon --name NAME <command>"
+    exit 1
+  end
+
+  unless tend_session_exists?
+    $stderr.puts "No tend session found. Start one with tend-session."
+    exit 1
+  end
+
+  summon_window(cmd, window_name)
+  focus_ghostty
+end
+
+def tend_session_exists?
+  system(TMUX, "has-session", "-t", SESSION, [:out, :err] => "/dev/null")
+end
+
+def summon_window(cmd, window_name)
+  target = "#{SESSION}:#{window_name}"
+
+  if system(TMUX, "select-window", "-t", target, [:out, :err] => "/dev/null")
+    # Window exists — re-send command if pane is idle (at a shell prompt)
+    current_cmd, = Open3.capture2(TMUX, "display-message", "-t", target, "-p", "\#{pane_current_command}")
+    if current_cmd.strip =~ /\A(bash|zsh|fish)\z/
+      system(TMUX, "send-keys", "-t", target, cmd, "Enter")
+    end
+    return
+  end
+
+  # Create new window
+  system(TMUX, "new-window", "-t", SESSION, "-n", window_name)
+  system(TMUX, "send-keys", "-t", target, cmd, "Enter")
+end
+
+def focus_ghostty
+  lua = <<~LUA
+    local app = hs.application.get("Ghostty")
+    if app then
+      for _, win in ipairs(app:allWindows()) do
+        if string.find(win:title(), "tend", 1, true) then
+          win:focus()
+          return
+        end
+      end
+      app:activate()
+    end
+  LUA
+  system(HS, "-c", lua)
+end
+
+main
