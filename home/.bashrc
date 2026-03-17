@@ -81,6 +81,9 @@ alias tio='open $(tend --print inbox)'
 alias tn='cd $(tend --print now)'
 alias tno='open $(tend --print now)'
 
+alias tci='tend-check-in'
+alias tcil='tend-check-in --loop'
+
 # Require explicit CLAUDE_CONFIG_DIR selection
 claude() {
   if [ -z "$CLAUDE_CONFIG_DIR" ]; then
