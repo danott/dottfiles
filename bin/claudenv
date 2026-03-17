@@ -1,0 +1,42 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# Show or set the CLAUDE_CONFIG_DIR for the current directory.
+#
+# Usage:
+#   claude-env        # show current, or pick one if unset
+#   claude-env --set  # pick even if already set
+
+CONFIG_DIRS = File.expand_path("~/.claude_config_dirs")
+
+def current_env
+  ENV["CLAUDE_CONFIG_DIR"]
+end
+
+def pick_config_dir
+  envs = Dir.children(CONFIG_DIRS).sort
+  $stderr.puts "Pick a claude environment:"
+  envs.each_with_index { |e, i| $stderr.puts "  #{i + 1}) #{e}" }
+  $stderr.print "> "
+  choice = $stdin.gets&.strip&.to_i
+  return nil if choice.nil? || choice < 1 || choice > envs.size
+  File.join(CONFIG_DIRS, envs[choice - 1])
+end
+
+def write_envrc(dir)
+  envrc = File.join(Dir.pwd, ".envrc")
+  File.write(envrc, "export CLAUDE_CONFIG_DIR=#{dir}\n")
+  system("direnv", "allow", envrc)
+  puts "Set CLAUDE_CONFIG_DIR=#{dir}"
+end
+
+force = ARGV.delete("--set")
+
+if current_env && !force
+  puts current_env
+  exit
+end
+
+dir = pick_config_dir
+exit 1 if dir.nil?
+write_envrc(dir)
