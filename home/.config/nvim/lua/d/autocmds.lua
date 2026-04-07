@@ -80,9 +80,9 @@ api.nvim_create_autocmd('FileType', {
   group = grp,
 })
 
--- markdown and gitcommit: no conceallevel, spell on
+-- gitcommit: no conceallevel, spell on
 api.nvim_create_autocmd('FileType', {
-  pattern = { 'markdown', 'gitcommit' },
+  pattern = 'gitcommit',
   callback = function()
     vim.opt_local.conceallevel = 0
     vim.opt_local.spell = true
