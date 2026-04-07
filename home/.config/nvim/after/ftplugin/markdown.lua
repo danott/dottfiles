@@ -3,11 +3,8 @@ vim.opt_local.spell = true
 
 vim.opt_local.wrap = true
 vim.opt_local.linebreak = true
-vim.opt_local.textwidth = 80
 vim.opt_local.breakindent = true
 vim.opt_local.breakindentopt = 'list:-1'
-vim.opt_local.formatoptions:append('n')
-vim.opt_local.formatlistpat = [[^\s*\(\d\+[.\)]\|[-*+]\|>\)\s\+]]
 
 local opts = { buffer = true, silent = true }
 
