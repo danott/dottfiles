@@ -1,4 +1,0 @@
-#!/bin/bash
-
-osascript ./toggle-grayscale.scpt
-exit 0

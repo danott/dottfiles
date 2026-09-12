@@ -100,7 +100,6 @@ claude() {
   command claude "$@"
 }
 
-# https://pages.tobi.lutke.com/try/#install
-if command -v try &> /dev/null; then
-  eval "$(try init)"
-fi
+
+# opencode
+export PATH=/Users/danott/.opencode/bin:$PATH
