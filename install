@@ -2,7 +2,7 @@
 
 set -e
 
-DOTTFILES_DIR="$HOME/dottfiles"
+DOTTFILES_DIR="$HOME/Developer/dottfiles"
 
 # Install Homebrew packages
 if [[ -f "$DOTTFILES_DIR/Brewfile" ]]; then
