@@ -18,8 +18,6 @@ cd "$DOTTFILES_DIR/home"
 # Directories to symlink as a whole (not individual files)
 LINK_DIRS=(
   ".config/nvim"
-  ".config/tmux"
-  ".hammerspoon"
 )
 
 link_path() {
