@@ -62,44 +62,5 @@ alias gl='git pull'
 alias gp='git push'
 alias gca='git commit --all'
 
-# tend — metabolic workspace
-alias td='tend daily'
-alias tdo='open $(tend --touch --print daily)'
-
-alias tsv='tend scratch'
-alias tso='open $(tend --touch --print scratch)'
-
-alias tj='tend journal'
-alias tjo='open $(tend --touch --print journal)'
-
-alias tc='tend capture'
-alias tco='open $(tend --touch --print capture)'
-
-alias ti='cd $(tend --print inbox)'
-alias tio='open $(tend --print inbox)'
-
-alias tn='cd $(tend --print now)'
-alias tno='open $(tend --print now)'
-
-alias tci='tend-check-in'
-alias tcil='tend-check-in --loop'
-
-# Require explicit CLAUDE_CONFIG_DIR selection
-claude() {
-  if [ -z "$CLAUDE_CONFIG_DIR" ]; then
-    echo "CLAUDE_CONFIG_DIR is not set. Pick an environment:" >&2
-    local envs=("$HOME/.claude_config_dirs"/*)
-    select dir in "${envs[@]##*/}"; do
-      if [ -n "$dir" ]; then
-        CLAUDE_CONFIG_DIR="$HOME/.claude_config_dirs/$dir" command claude "$@"
-        return
-      fi
-    done
-    return 1
-  fi
-  command claude "$@"
-}
-
-
 # opencode
 export PATH=/Users/danott/.opencode/bin:$PATH
