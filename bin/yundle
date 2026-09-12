@@ -1,6 +1,0 @@
-#!/bin/bash
-
-yarn install
-bundle install
-box restart-app
-
