@@ -20,6 +20,7 @@ return {
           hidden = true,
         },
         files = { hidden = true },
+        grep = { hidden = true },
       },
     },
   },
